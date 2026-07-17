@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตารางคะแนน & วงล้อสุ่ม & นาฬิกาจับเวลา</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+            max-width: 900px;
+            justify-content: center;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 2px solid transparent;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #64748b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: #3b82f6;
+        }
+        .nav-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.4s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        #wheel-page.active {
+            display: flex; 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-header h2 { margin: 0; color: #2c3e50; }
+        
+        .add-team-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .add-team-form input {
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .add-team-form input:focus { border-color: #3b82f6; }
+        .add-team-form input[type="text"] { flex: 2; min-width: 200px; }
+        .add-team-form input[type="number"] { flex: 1; min-width: 100px; }
+        .btn-add {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-add:hover { background: #059669; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background: #f8fafc; color: #475569; padding: 15px; font-weight: bold; border-bottom: 2px solid #cbd5e1; white-space: nowrap; }
+        td { padding: 15px; border-bottom: 1px solid #e2e8f0; color: #1e293b; vertical-align: middle; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: #f8fafc; }
+        
+        .rank-1 { color: #fbbf24; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(251,191,36,0.3); }
+        .rank-2 { color: #94a3b8; font-size: 22px; font-weight: bold; }
+        .rank-3 { color: #b45309; font-size: 20px; font-weight: bold; }
+
+        .score-controls { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .score-controls input { width: 70px; text-align: center; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 16px; font-weight: bold; color: #2c3e50; }
+        .score-btn { background: #f1f5f9; border: none; width: 35px; height: 35px; border-radius: 6px; font-size: 18px; font-weight: bold; color: #475569; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .score-btn.plus { color: #10b981; }
+        .score-btn.minus { color: #ef4444; }
+        .score-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        
+        .btn-delete-team { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: bold; width: 100%;}
+        .btn-delete-team:hover { background: #fca5a5; color: white; }
+
+        .btn-edit-name { background: transparent; border: none; padding: 4px 8px; cursor: pointer; font-size: 14px; border-radius: 4px; transition: 0.2s; color: #94a3b8; flex: none; width: auto; font-weight: normal; }
+        .btn-edit-name:hover { background: #e2e8f0; color: #3b82f6; }
+
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); gap: 40px; flex-wrap: wrap; width: 100%; justify-content: center; position: relative; z-index: 1; }
+        .control-panel { flex: 1; min-width: 280px; display: flex; flex-direction: column; }
+        h2 { margin-top: 0; color: #2c3e50; font-size: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        label { font-weight: bold; margin-bottom: 8px; color: #4a5568; }
+        textarea { width: 100%; height: 160px; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 16px; resize: vertical; margin-bottom: 12px; line-height: 1.5; transition: border-color 0.2s; }
+        textarea:focus { border-color: #3b82f6; outline: none; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn-row { display: flex; gap: 10px; }
+        button { border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s; flex: 1; }
+        
+        .btn-update { background-color: #64748b; color: white; }
+        .btn-update:hover { background-color: #475569; }
+        .btn-sync { background-color: #8b5cf6; color: white; }
+        .btn-sync:hover { background-color: #7c3aed; }
+        .btn-spin { background-color: #ef4444; color: white; font-size: 18px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); padding: 15px; }
+        .btn-spin:hover { background-color: #dc2626; transform: translateY(-2px); }
+        .btn-spin:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .wheel-section { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        .wheel-section.fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); z-index: 50; }
+        .wheel-container { position: relative; width: 350px; height: 350px; max-width: 90vw; max-height: 90vw; display: flex; justify-content: center; align-items: center; transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        .wheel-section.fullscreen .wheel-container { width: 85vmin; height: 85vmin; max-width: 650px; max-height: 650px; }
+        
+        canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 25px rgba(0,0,0,0.2); transition: transform 7s cubic-bezier(0.1, 0.7, 0.1, 1); }
+        
+        .pointer { position: absolute; top: -15px; width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 30px solid #1e293b; z-index: 10; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); transition: all 0.6s ease; }
+        .wheel-section.fullscreen .pointer { top: -25px; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 45px solid #f8fafc; }
+        
+        .center-circle { position: absolute; width: 45px; height: 45px; background: #fff; border: 5px solid #1e293b; border-radius: 50%; z-index: 5; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); transition: all 0.6s ease; }
+        .wheel-section.fullscreen .center-circle { width: 70px; height: 70px; border: 7px solid #f8fafc; }
+        
+        #winner-display { margin-top: 25px; font-size: 24px; font-weight: bold; color: #1e293b; min-height: 35px; text-align: center; transition: all 0.6s ease; }
+        .wheel-section.fullscreen #winner-display { color: #f8fafc; font-size: 40px; text-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-top: 40px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background-color: white; padding: 35px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 450px; width: 90%; animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-content h3 { margin-top: 0; color: #10b981; font-size: 30px; }
+        .modal-content p { font-size: 20px; color: #4b5563; margin-bottom: 25px; }
+        .modal-btns { display: flex; gap: 15px; justify-content: center; }
+        .btn-keep { background-color: #3b82f6; color: white; flex: 1; }
+        .btn-keep:hover { background-color: #2563eb; }
+        .btn-remove { background-color: #ef4444; color: white; flex: 1; }
+        .btn-remove:hover { background-color: #dc2626; }
+
+        #timer-page .card {
+            background-color: #ffe4e6;
+            border: 2px solid #fecdd3;
+        }
+        .timer-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .matchup-selector { display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; background: rgba(255,255,255,0.8); padding: 20px; border-radius: 12px; }
+        .matchup-selector select { padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 18px; font-weight: bold; color: #1e293b; outline: none; min-width: 150px; text-align: center; }
+        .matchup-vs { font-size: 24px; font-weight: bold; color: #ef4444; }
+        .timer-setup { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .timer-setup input { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 18px; width: 100px; text-align: center; }
+        
+        .timer-display { font-size: 240px; font-weight: bold; color: #1e293b; font-variant-numeric: tabular-nums; line-height: 1; margin: 30px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .timer-display.danger { color: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        @media (max-width: 768px) {
+            .timer-display { font-size: 120px; }
+        }
+        
+        .timer-controls { display: flex; gap: 15px; width: 100%; max-width: 400px; }
+        .btn-start { background-color: #10b981; color: white; font-size: 18px; }
+        .btn-start:hover { background-color: #059669; }
+        .btn-pause { background-color: #f59e0b; color: white; font-size: 18px; }
+        .btn-pause:hover { background-color: #d97706; }
+        .btn-reset { background-color: #64748b; color: white; font-size: 18px; }
+        .btn-reset:hover { background-color: #475569; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <button class="nav-btn active" id="tab-leaderboard" onclick="switchTab('leaderboard')">🏆 ตารางคะแนน</button>
+        <button class="nav-btn" id="tab-wheel" onclick="switchTab('wheel')">🎡 วงล้อสุ่ม</button>
+        <button class="nav-btn" id="tab-timer" onclick="switchTab('timer')">⏱️ จับเวลา</button>
+    </nav>
+
+    <div id="leaderboard-page" class="page active">
+        <div class="card">
+            <div class="card-header">
+                <h2>🏆 ตารางคะแนนสะสม</h2>
+                <span id="sync-status" style="color: #3b82f6; font-size: 14px; font-weight: bold;">รอดำเนินการ...</span>
+            </div>
+            
+            <div class="add-team-form">
+                <input type="text" id="new-team-name" placeholder="ชื่อทีม หรือ ชื่อบุคคล" onkeypress="handleEnter(event)">
+                <input type="number" id="new-team-score" placeholder="คะแนนเริ่ม" value="0" onkeypress="handleEnter(event)">
+                <button class="btn-add" onclick="addTeam()">➕ เพิ่มรายชื่อ</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">อันดับ</th>
+                            <th width="35%" style="text-align: left;">รายชื่อ / ทีม</th>
+                            <th width="35%">คะแนน</th>
+                            <th width="15%">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <!-- แถวจะถูกสร้างด้วย JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="wheel-page" class="page container">
+        <div class="control-panel">
+            <h2>⚙️ ตั้งค่ารายชื่อวงล้อ</h2>
+            <label for="names-input">ใส่ชื่อ (1 บรรทัด ต่อ 1 ชื่อ):</label>
+            <textarea id="names-input"></textarea>
+            <div class="btn-group">
+                <div class="btn-row">
+                    <button class="btn-update" onclick="updateWheel()">🔄 สร้างวงล้อ</button>
+                    <button class="btn-sync" onclick="syncFromLeaderboard()">📥 ดึงชื่อจากตาราง</button>
+                </div>
+                <button class="btn-spin" id="spin-btn" onclick="spinWheel()">🎉 หมุนเต็มจอ!</button>
+            </div>
+        </div>
+
+        <div class="wheel-section" id="wheel-section">
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <canvas id="wheel" width="600" height="600"></canvas>
+                <div class="center-circle"></div>
+            </div>
+            <div id="winner-display">พร้อมลุ้นโชคแล้ว!</div>
+        </div>
+    </div>
+
+    <div id="timer-page" class="page">
+        <div class="card timer-container">
+            <div class="card-header" style="width: 100%;">
+                <h2>⏱️ นาฬิกาจับเวลาแข่งขัน</h2>
+            </div>
+            
+            <div class="matchup-selector">
+                <select id="team1-select">
+                    <option value="">-- เลือกทีม 1 --</option>
+                </select>
+                <span class="matchup-vs">VS</span>
+                <select id="team2-select">
+                    <option value="">-- เลือกทีม 2 --</option>
+                </select>
+            </div>
+
+            <div class="timer-setup">
+                <label for="timer-minutes" style="font-size: 18px; font-weight: bold;">ตั้งเวลา (นาที): </label>
+                <input type="number" id="timer-minutes" value="5" min="1" max="120">
+                <button class="btn-update" onclick="setTimer()" style="flex: none;">อัปเดตเวลา</button>
+            </div>
+
+            <div class="timer-display" id="timer-display">05:00</div>
+
+            <div class="timer-controls">
+                <button class="btn-start" id="btn-timer-start" onclick="startTimer()">▶️ เริ่มจับเวลา</button>
+                <button class="btn-pause" id="btn-timer-pause" onclick="pauseTimer()" style="display: none;">⏸️ พัก</button>
+                <button class="btn-reset" onclick="resetTimer()">🔄 เริ่มใหม่</button>
+            </div>
+
+            <!-- ส่วนสรุปคะแนนการแข่งขัน -->
+            <div class="score-summary" style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #fca5a5; width: 100%;">
+                <h3 style="text-align: center; color: #be123c; margin-top: 0;">📝 สรุปผลคะแนนแข่งขัน</h3>
+                <div style="display: flex; justify-content: center; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div id="summary-team1-name" style="font-weight: bold; margin-bottom: 5px; color: #4c1d95;">ทีม 1</div>
+                        <input type="number" id="match-score-team1" value="0" style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 2px solid #fecdd3; font-size: 18px; background: white;">
+                    </div>
+                    <span style="font-size: 24px; font-weight: bold; color: #f87171;">-</span>
+                    <div style="text-align: center;">
+                        <div id="summary-team2-name" style="font-weight: bold; margin-bottom: 5px; color: #4c1d95;">ทีม 2</div>
+                        <input type="number" id="match-score-team2" value="0" style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 2px solid #fecdd3; font-size: 18px; background: white;">
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn-add" onclick="saveMatchScore()" style="background-color: #e11d48; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);">💾 บันทึกคะแนนเข้าตารางหลัก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="winnerModal" class="modal">
+        <div class="modal-content">
+            <h3>🎉 ยินดีด้วย! 🎉</h3>
+            <p id="modal-winner-text">ผู้โชคดีคือ: XXX</p>
+            <p style="font-size: 15px; color: #6b7280;">คุณต้องการลบชื่อนี้ออกจากวงล้อสำหรับการสุ่มครั้งต่อไปหรือไม่?</p>
+            <div class="modal-btns">
+                <button class="btn-keep" onclick="closeModal(false)">เก็บไว้</button>
+                <button class="btn-remove" onclick="closeModal(true)">ลบออก</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* =========================================
+       !!! นำ URL ของ Web App Google Sheets มาใส่ในบรรทัดด้านล่าง !!!
+    ========================================= */
+    const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyrVrGbvCk2nITi_yi0UlIo6S3ToHzXfH7QsTB-IcZnwJd2zsoc1tokSghXOXC6194Kg/exec'; 
+
+    // ข้อมูลเริ่มต้น
+    let teams = [
+        { id: 1, name: "ทีม A1", score: 0 }, { id: 2, name: "ทีม A2", score: 0 },
+        { id: 3, name: "ทีม A3", score: 0 }, { id: 4, name: "ทีม A4", score: 0 },
+        { id: 5, name: "ทีม A5", score: 0 }, { id: 6, name: "ทีม A6", score: 0 },
+        { id: 7, name: "ทีม A7", score: 0 }, { id: 8, name: "ทีม A8", score: 0 },
+        { id: 9, name: "ทีม A9", score: 0 }, { id: 10, name: "ทีม A10", score: 0 }
+    ];
+    let nextId = 11;
+
+    // ตัวแปรวงล้อ
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spin-btn');
+    const winnerDisplay = document.getElementById('winner-display');
+    const modal = document.getElementById('winnerModal');
+    const modalWinnerText = document.getElementById('modal-winner-text');
+    const wheelSection = document.getElementById('wheel-section');
+
+    let wheelNames = [];
+    let currentRotation = 0;
+    let isSpinning = false;
+    let lastWinnerIndex = -1;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7D794', '#786FA6', '#F8A5C2', '#63CDDA', '#CF6A87', '#E77F67', '#778BEB'];
+
+    // ตัวแปรนาฬิกาจับเวลา
+    let timerInterval = null;
+    let totalSeconds = 300; 
+    let remainingSeconds = 300;
+    let isTimerRunning = false;
+
+    // ฟังก์ชันโหลดข้อมูลจากเครื่องสำรอง
+    function loadFromLocal(statusEl, msg) {
+        const savedData = localStorage.getItem('competition_data');
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                if (data.teams) {
+                    teams = data.teams;
+                    nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
+                }
+                if (data.wheelNames) wheelNames = data.wheelNames;
+            } catch (e) { console.error(e); }
+        }
+        if(statusEl) {
+            statusEl.innerHTML = msg;
+            if(!msg.includes('❌')) statusEl.style.color = '#10b981';
+        }
+    }
+
+    async function loadData() {
+        const statusEl = document.getElementById('sync-status');
+        
+        if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
+            loadFromLocal(statusEl, '💾 บันทึกข้อมูลลงในเครื่องแล้ว (Offline Mode)');
+            renderUI();
+            return;
+        }
+
+        statusEl.innerHTML = '⏳ กำลังโหลดข้อมูลจาก Google Sheets...';
+        statusEl.style.color = '#f59e0b';
+        
+        try {
+            const response = await fetch(GOOGLE_APP_SCRIPT_URL);
+            if (!response.ok) throw new Error("Network response was not ok");
+            const result = await response.json();
+            
+            if (result.status === 'success' && result.data) {
+                if (result.data.teams && result.data.teams.length > 0) {
+                    teams = result.data.teams;
+                    nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
+                }
+                if (result.data.wheelNames) {
+                    wheelNames = result.data.wheelNames;
+                }
+                statusEl.innerHTML = '✅ เชื่อมต่อ Google Sheets เรียบร้อยแล้ว';
+                statusEl.style.color = '#10b981';
+            }
+        } catch (error) {
+            // เลี่ยงการใช้ console.error เพื่อป้องกันระบบเด้งหน้าต่าง Error รบกวนผู้ใช้
+            console.warn('ไม่สามารถเชื่อมต่อ Google Sheets ได้ สลับไปใช้โหมดสำรอง:', error.message);
+            // Fallback to local storage if Google Sheets fails (e.g. CORS or permission error)
+            loadFromLocal(statusEl, '❌ เชื่อมต่อล้มเหลว (ทำงานออฟไลน์ โปรดเช็คสิทธิ์แอปให้เป็น "ทุกคน")');
+            statusEl.style.color = '#ef4444';
+        }
+        
+        renderUI();
+    }
+
+    function renderUI() {
+        document.getElementById('names-input').value = wheelNames.join('\n');
+        renderLeaderboard();
+        if (wheelNames.length === 0) syncFromLeaderboard(); else updateWheel();
+        populateTimerTeams();
+    }
+
+    async function saveData() {
+        const dataToSave = {
+            teams: teams,
+            wheelNames: wheelNames
+        };
+
+        const statusEl = document.getElementById('sync-status');
+        
+        // Backup ข้อมูลลงเครื่องเสมอ เพื่อป้องกันข้อมูลหายเมื่อเชื่อมต่อไม่ได้
+        localStorage.setItem('competition_data', JSON.stringify(dataToSave));
+
+        if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
+            statusEl.innerHTML = '💾 บันทึกข้อมูลลงในเครื่องแล้ว (Offline Mode)';
+            statusEl.style.color = '#10b981';
+            return;
+        }
+
+        statusEl.innerHTML = '⏳ กำลังบันทึกไปที่ Google Sheets...';
+        statusEl.style.color = '#f59e0b';
+        
+        try {
+            // ใช้ mode: 'no-cors' เพื่อไม่ให้เบราว์เซอร์บล็อกการส่งข้อมูลไปยัง Google Apps Script
+            fetch(GOOGLE_APP_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain', 
+                },
+                body: JSON.stringify(dataToSave)
+            }).then(() => {
+                statusEl.innerHTML = '✅ บันทึกขึ้น Google Sheets สำเร็จ';
+                statusEl.style.color = '#10b981';
+            }).catch(err => {
+                console.warn('การส่งข้อมูลมีปัญหา ข้อมูลถูกเซฟลงเครื่องแล้ว:', err.message);
+                statusEl.innerHTML = '❌ บันทึกผิดพลาด (ข้อมูลถูกเซฟลงเครื่องแล้ว)';
+                statusEl.style.color = '#ef4444';
+            });
+        } catch (e) {
+            console.warn('พบปัญหาการเชื่อมต่อ ข้อมูลถูกเซฟลงเครื่องแล้ว:', e.message);
+        }
+    }
+
+    function switchTab(tabId) {
+        ['leaderboard', 'wheel', 'timer'].forEach(id => {
+            const page = document.getElementById(id + '-page');
+            const tab = document.getElementById('tab-' + id);
+            if(page) page.classList.remove('active');
+            if(tab) tab.classList.remove('active');
+        });
+        
+        const activePage = document.getElementById(tabId + '-page');
+        const activeTab = document.getElementById('tab-' + tabId);
+        if(activePage) activePage.classList.add('active');
+        if(activeTab) activeTab.classList.add('active');
+
+        if(tabId === 'wheel') updateWheel();
+        else if (tabId === 'timer') populateTimerTeams();
+    }
+
+    function renderLeaderboard() {
+        teams.sort((a, b) => b.score - a.score);
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+
+        if(teams.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="color: #94a3b8; padding: 20px;">ยังไม่มีรายชื่อ กรุณาเพิ่มรายชื่อด้านบน</td></tr>';
+            return;
+        }
+
+        teams.forEach((team, index) => {
+            let rankHtml = `${index + 1}`;
+            if (index === 0) rankHtml = `<span class="rank-1">🥇 1</span>`;
+            else if (index === 1) rankHtml = `<span class="rank-2">🥈 2</span>`;
+            else if (index === 2) rankHtml = `<span class="rank-3">🥉 3</span>`;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${rankHtml}</td>
+                    <td style="text-align: left; font-weight: bold; font-size: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+                            ${team.name}
+                            <button class="btn-edit-name" onclick="editTeam(${team.id})" title="แก้ไขชื่อ">✏️</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="score-controls">
+                            <button class="score-btn minus" onclick="updateScore(${team.id}, -1)">-</button>
+                            <input type="number" value="${team.score}" onchange="setDirectScore(${team.id}, this.value)">
+                            <button class="score-btn plus" onclick="updateScore(${team.id}, 1)">+1</button>
+                            <button class="score-btn plus" style="font-size: 14px;" onclick="updateScore(${team.id}, 5)">+5</button>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn-delete-team" onclick="deleteTeam(${team.id})">ลบ</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function addTeam() {
+        const nameInput = document.getElementById('new-team-name');
+        const scoreInput = document.getElementById('new-team-score');
+        const name = nameInput.value.trim();
+        const score = parseInt(scoreInput.value) || 0;
+
+        if (name === '') { alert('กรุณาใส่ชื่อทีมหรือบุคคลครับ'); nameInput.focus(); return; }
+
+        teams.push({ id: nextId++, name: name, score: score });
+        nameInput.value = ''; scoreInput.value = '0'; nameInput.focus();
+        
+        renderLeaderboard(); populateTimerTeams(); saveData();
+    }
+
+    function handleEnter(e) { if (e.key === 'Enter') addTeam(); }
+
+    function updateScore(id, change) {
+        const team = teams.find(t => t.id === id);
+        if (team) { team.score += change; renderLeaderboard(); saveData(); }
+    }
+
+    function setDirectScore(id, value) {
+        const team = teams.find(t => t.id === id);
+        if (team) { team.score = parseInt(value) || 0; renderLeaderboard(); saveData(); }
+    }
+
+    function editTeam(id) {
+        const team = teams.find(t => t.id === id);
+        if (team) {
+            const newName = prompt('แก้ไขชื่อทีม:', team.name);
+            if (newName !== null && newName.trim() !== '') {
+                team.name = newName.trim();
+                renderLeaderboard();
+                populateTimerTeams();
+                saveData(); 
+            }
+        }
+    }
+
+    function deleteTeam(id) {
+        if(confirm('ยืนยันการลบรายชื่อนี้?')) {
+            teams = teams.filter(t => t.id !== id);
+            renderLeaderboard(); populateTimerTeams(); saveData();
+        }
+    }
+
+    function syncFromLeaderboard() {
+        if(teams.length === 0) { alert('ไม่มีรายชื่อในตารางคะแนน'); return; }
+        const sortedTeamsForWheel = [...teams].sort((a, b) => a.name.localeCompare(b.name));
+        document.getElementById('names-input').value = sortedTeamsForWheel.map(t => t.name).join('\n');
+        updateWheel(); 
+    }
+
+    function playTickSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playCheerSound() {
+        if (!audioCtx) return;
+        const notes = [440, 554, 659, 880];
+        notes.forEach((freq, index) => {
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }, index * 120);
+        });
+    }
+
+    function updateWheel() {
+        if (isSpinning) return;
+        wheelNames = document.getElementById('names-input').value.split('\n').map(n => n.trim()).filter(n => n !== '');
+        if (wheelNames.length > 0) {
+            drawWheel(); winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!';
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        saveData();
+    }
+
+    function drawWheel() {
+        const numSlices = wheelNames.length;
+        if(numSlices === 0) return;
+        const sliceAngle = (2 * Math.PI) / numSlices;
+        const center = canvas.width / 2;
+        const radius = center;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < numSlices; i++) {
+            ctx.beginPath(); ctx.moveTo(center, center);
+            ctx.arc(center, center, radius, i * sliceAngle, (i + 1) * sliceAngle);
+            ctx.closePath();
+            ctx.fillStyle = colors[i % colors.length]; ctx.fill();
+            ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+
+            ctx.save(); ctx.translate(center, center);
+            ctx.rotate(i * sliceAngle + sliceAngle / 2);
+            ctx.textAlign = "right"; ctx.fillStyle = "#ffffff";
+            const fontSize = wheelNames.length > 20 ? 16 : (wheelNames.length > 10 ? 20 : 26);
+            ctx.font = `bold ${fontSize}px 'Segoe UI', Tahoma, sans-serif`;
+            ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = 4;
+            ctx.fillText(wheelNames[i], radius - 40, 8);
+            ctx.restore();
+        }
+    }
+
+    function spinWheel() {
+        if (isSpinning || wheelNames.length === 0) {
+            if(wheelNames.length === 0) alert('กรุณาใส่ชื่อในวงล้อก่อนครับ');
+            return;
+        }
+
+        wheelSection.classList.add('fullscreen');
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        isSpinning = true; spinBtn.disabled = true;
+        winnerDisplay.textContent = 'กำลังลุ้นระทึก...!';
+
+        const randomDegree = Math.floor(Math.random() * 360);
+        const totalSpin = 3240 + randomDegree; 
+        currentRotation += totalSpin;
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        let currentTicks = 0; const maxTicks = 45; 
+        function triggerTick() {
+            if (currentTicks >= maxTicks) return;
+            playTickSound(); currentTicks++;
+            const progress = currentTicks / maxTicks;
+            const nextDelay = 30 + (Math.pow(progress, 3) * 600); 
+            if (isSpinning) setTimeout(triggerTick, nextDelay);
+        }
+        setTimeout(triggerTick, 50);
+
+        setTimeout(() => {
+            const actualDegree = currentRotation % 360;
+            const winningAngle = (270 - actualDegree + 360) % 360;
+            const sliceAngle = 360 / wheelNames.length;
+            lastWinnerIndex = Math.floor(winningAngle / sliceAngle);
+
+            const winner = wheelNames[lastWinnerIndex];
+            winnerDisplay.textContent = `🎉 ${winner} 🎉`;
+            playCheerSound();
+
+            setTimeout(() => {
+                modalWinnerText.innerHTML = `ผู้โชคดีคือ:<br> <span style="font-size: 36px; color: #3b82f6;">${winner}</span>`;
+                modal.style.display = 'flex';
+            }, 800);
+        }, 7000); 
+    }
+
+    function closeModal(shouldRemove) {
+        modal.style.display = 'none';
+        wheelSection.classList.remove('fullscreen');
+        
+        if (shouldRemove && lastWinnerIndex !== -1) {
+            wheelNames.splice(lastWinnerIndex, 1);
+            document.getElementById('names-input').value = wheelNames.join('\n');
+            setTimeout(() => {
+                drawWheel(); winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!'; saveData();
+            }, 500);
+        } else {
+            winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!';
+        }
+        isSpinning = false; spinBtn.disabled = false; lastWinnerIndex = -1;
+    }
+
+    function populateTimerTeams() {
+        const t1 = document.getElementById('team1-select');
+        const t2 = document.getElementById('team2-select');
+        if (!t1 || !t2) return;
+
+        const val1 = t1.value; const val2 = t2.value;
+        const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
+
+        let optionsHtml = '<option value="">-- เลือกทีม --</option>';
+        sortedTeams.forEach(t => { optionsHtml += `<option value="${t.name}">${t.name}</option>`; });
+
+        t1.innerHTML = optionsHtml; t2.innerHTML = optionsHtml;
+        if (val1) t1.value = val1; if (val2) t2.value = val2;
+
+        document.getElementById('summary-team1-name').textContent = t1.value || 'ทีม 1';
+        document.getElementById('summary-team2-name').textContent = t2.value || 'ทีม 2';
+    }
+
+    function updateTimerDisplay(seconds) {
+        const display = document.getElementById('timer-display');
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        display.textContent = `${m}:${s}`;
+        
+        if (seconds <= 10 && seconds > 0) display.classList.add('danger');
+        else display.classList.remove('danger');
+    }
+
+    function setTimer() {
+        if (isTimerRunning) return;
+        totalSeconds = (parseInt(document.getElementById('timer-minutes').value) || 5) * 60;
+        remainingSeconds = totalSeconds;
+        updateTimerDisplay(remainingSeconds);
+    }
+
+    function playStartSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    function playAlarmSound() {
+        if (!audioCtx) return;
+        const notes = [600, 800, 600, 800, 600, 800];
+        notes.forEach((freq, index) => {
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }, index * 300);
+        });
+    }
+
+    function startTimer() {
+        if (isTimerRunning || remainingSeconds <= 0) return;
+        
+        const t1 = document.getElementById('team1-select').value;
+        const t2 = document.getElementById('team2-select').value;
+        if (!t1 || !t2) { alert('กรุณาเลือกทีมที่แข่งขันทั้ง 2 ทีมก่อนเริ่มจับเวลาครับ'); return; }
+        if (t1 === t2) { alert('ไม่สามารถเลือกทีมเดียวกันแข่งกันเองได้ครับ'); return; }
+
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        playStartSound();
+
+        isTimerRunning = true;
+        document.getElementById('btn-timer-start').style.display = 'none';
+        document.getElementById('btn-timer-pause').style.display = 'inline-block';
+        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => document.getElementById(id).disabled = true);
+
+        timerInterval = setInterval(() => {
+            remainingSeconds--;
+            updateTimerDisplay(remainingSeconds);
+
+            if (remainingSeconds <= 10 && remainingSeconds > 0) playTickSound(); 
+
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval); isTimerRunning = false;
+                document.getElementById('btn-timer-start').style.display = 'inline-block';
+                document.getElementById('btn-timer-pause').style.display = 'none';
+                ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => document.getElementById(id).disabled = false);
+                playAlarmSound();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (!isTimerRunning) return;
+        clearInterval(timerInterval); isTimerRunning = false;
+        document.getElementById('btn-timer-start').style.display = 'inline-block';
+        document.getElementById('btn-timer-pause').style.display = 'none';
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval); isTimerRunning = false;
+        remainingSeconds = totalSeconds; updateTimerDisplay(remainingSeconds);
+        document.getElementById('btn-timer-start').style.display = 'inline-block';
+        document.getElementById('btn-timer-pause').style.display = 'none';
+        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => document.getElementById(id).disabled = false);
+    }
+
+    function saveMatchScore() {
+        const t1Name = document.getElementById('team1-select').value;
+        const t2Name = document.getElementById('team2-select').value;
+        const s1 = parseInt(document.getElementById('match-score-team1').value) || 0;
+        const s2 = parseInt(document.getElementById('match-score-team2').value) || 0;
+
+        if (!t1Name || !t2Name) { alert('กรุณาเลือกทีมให้ครบทั้ง 2 ทีมก่อนบันทึกคะแนนครับ'); return; }
+
+        const team1 = teams.find(t => t.name === t1Name);
+        const team2 = teams.find(t => t.name === t2Name);
+
+        if (team1) team1.score += s1;
+        if (team2) team2.score += s2;
+
+        renderLeaderboard(); saveData();
+        alert(`บันทึกคะแนนเรียบร้อยแล้ว!\n⭐ ${t1Name} ได้เพิ่ม ${s1} คะแนน\n⭐ ${t2Name} ได้เพิ่ม ${s2} คะแนน`);
+        
+        document.getElementById('match-score-team1').value = '0';
+        document.getElementById('match-score-team2').value = '0';
+    }
+
+    document.getElementById('team1-select').addEventListener('change', function() { document.getElementById('summary-team1-name').textContent = this.value || 'ทีม 1'; });
+    document.getElementById('team2-select').addEventListener('change', function() { document.getElementById('summary-team2-name').textContent = this.value || 'ทีม 2'; });
+
+    // เริ่มทำงานเมื่อเปิดเว็บ
+    window.onload = () => {
+        loadData();
+    };
+
+</script>
+</body>
+</html>
