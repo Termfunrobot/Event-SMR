@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบตารางคะแนน & วงล้อสุ่ม & นาฬิกาจับเวลา</title>
-    <!-- โหลดฟอนต์ Kanit จาก Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #f3f8ff;
@@ -32,44 +31,29 @@
             align-items: center; min-height: 100vh; overflow-x: hidden; color: var(--text-main);
         }
 
-        /* ส่วนหัวโครงการ */
         .project-header {
             text-align: center; margin-bottom: 30px; width: 100%; max-width: 950px;
             background: var(--primary-gradient); color: white; padding: 35px 20px;
             border-radius: 24px; box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3);
             animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
         }
-        .project-header::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
-            transform: rotate(30deg); pointer-events: none;
-        }
-        .project-header h1 { margin: 0; font-size: 38px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); position: relative; }
-        .project-header p { margin: 12px 0 0 0; font-size: 18px; font-weight: 300; opacity: 0.9; position: relative; }
+        .project-header h1 { margin: 0; font-size: 38px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .project-header p { margin: 12px 0 0 0; font-size: 18px; font-weight: 300; opacity: 0.9; }
 
-        /* แถบเมนู (Navbar) */
         .navbar {
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
             padding: 12px; border-radius: 16px; box-shadow: var(--shadow-sm); margin-bottom: 30px;
             display: flex; flex-wrap: wrap; gap: 12px; width: 100%; max-width: 950px; justify-content: center;
             border: 1px solid rgba(255,255,255,0.4);
         }
         .nav-btn {
             background: transparent; border: none; padding: 14px 28px; font-size: 16px; font-weight: 600;
-            color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            flex: 1; min-width: 140px; text-align: center; position: relative; overflow: hidden; z-index: 1;
+            color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: all 0.4s; flex: 1; min-width: 140px; text-align: center;
         }
-        .nav-btn::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--btn-blue); z-index: -1; transform: scaleY(0); transform-origin: bottom;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 12px; opacity: 0.1;
-        }
-        .nav-btn:hover::before { transform: scaleY(1); }
         .nav-btn:hover { color: var(--btn-blue); }
         .nav-btn.active { background: var(--btn-blue); color: white; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35); transform: translateY(-2px); }
-        .nav-btn.active::before { display: none; }
 
-        .page { display: none; width: 100%; max-width: 950px; animation: fadeZoom 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page { display: none; width: 100%; max-width: 1000px; animation: fadeZoom 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page.active { display: block; }
         #wheel-page.active { display: flex; }
 
@@ -80,57 +64,52 @@
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .card-header h2 { margin: 0; font-size: 26px; font-weight: 700; color: #0f172a; }
         
-        .sync-badge { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 600; background: #f1f5f9; color: var(--text-muted); transition: all 0.3s; }
+        .sync-badge { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 600; background: #f1f5f9; color: var(--text-muted); }
         .sync-badge.success { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .sync-badge.warning { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
         .sync-badge.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
-        .add-team-form { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .add-team-form { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); align-items: center;}
         .add-team-form input { padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; outline: none; transition: all 0.3s; background: white; }
-        .add-team-form input:focus { border-color: var(--btn-blue); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .add-team-form input:focus { border-color: var(--btn-blue); }
         .add-team-form input[type="text"] { flex: 2; min-width: 200px; }
-        .add-team-form input[type="number"] { flex: 1; min-width: 100px; }
-        .btn-add { background: var(--btn-green); color: white; border: none; padding: 14px 28px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.3s; white-space: nowrap; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
-        .btn-add:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3); }
+        .btn-add { background: var(--btn-green); color: white; border: none; padding: 14px 28px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+        .btn-add:hover { background: #059669; transform: translateY(-2px); }
 
         .table-responsive { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-color); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; background: white; }
-        th { background: #f1f5f9; color: #334155; padding: 18px; font-weight: 700; font-size: 15px; text-transform: uppercase; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
-        td { padding: 18px 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle; font-size: 17px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; background: white; min-width: 600px; }
+        th { background: #f1f5f9; color: #334155; padding: 15px 10px; font-weight: 700; font-size: 15px; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle; font-size: 16px; }
         tbody tr { transition: all 0.2s; }
-        tbody tr:hover { background: #f8fafc; transform: scale(1.002); }
+        tbody tr:hover { background: #f8fafc; }
         
-        .rank-1 { color: #f59e0b; font-size: 28px; font-weight: 800; text-shadow: 0 3px 6px rgba(245, 158, 11, 0.3); }
-        .rank-2 { color: #94a3b8; font-size: 24px; font-weight: 700; }
-        .rank-3 { color: #b45309; font-size: 22px; font-weight: 700; }
+        .rank-1 { color: #f59e0b; font-size: 26px; font-weight: 800; text-shadow: 0 2px 4px rgba(245, 158, 11, 0.3); }
+        .rank-2 { color: #94a3b8; font-size: 22px; font-weight: 700; }
+        .rank-3 { color: #b45309; font-size: 20px; font-weight: 700; }
 
-        .score-controls { display: flex; align-items: center; justify-content: center; gap: 6px; background: #f8fafc; padding: 6px; border-radius: 12px; display: inline-flex; }
-        .score-controls input { width: 75px; text-align: center; padding: 10px; border: 2px solid transparent; border-radius: 8px; font-size: 18px; font-weight: 700; color: var(--btn-blue); background: white; transition: 0.3s; }
-        .score-controls input:focus { border-color: var(--btn-blue); }
-        .score-btn { background: white; border: 1px solid var(--border-color); width: 40px; height: 40px; border-radius: 8px; font-size: 18px; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        .score-btn.plus { color: var(--btn-green); }
-        .score-btn.minus { color: var(--btn-red); }
-        .score-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+        /* ช่องกรอกคะแนนในตาราง */
+        .base-input { width: 65px; text-align: center; padding: 8px; border: 2px solid transparent; border-radius: 8px; font-size: 16px; font-weight: 700; color: var(--btn-blue); background: #f1f5f9; transition: 0.3s; }
+        .base-input:focus { border-color: var(--btn-blue); background: white; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1);}
         
-        .btn-delete-team { background: #fef2f2; color: var(--btn-red); border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; width: 100%; }
+        .btn-delete-team { background: #fef2f2; color: var(--btn-red); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
         .btn-delete-team:hover { background: var(--btn-red); color: white; }
-        .btn-edit-name { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.2s; color: var(--text-muted); margin-left: 8px; }
+        .btn-edit-name { background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; margin-left: 6px; }
         .btn-edit-name:hover { background: var(--btn-blue); color: white; }
 
-        /* หน้าวงล้อ */
+        /* Select ฐาน */
+        .base-config { display: flex; align-items: center; gap: 10px; background: #eff6ff; padding: 8px 16px; border-radius: 12px; border: 1px solid #bfdbfe;}
+        .base-config select { padding: 6px 12px; border-radius: 8px; border: 1px solid #93c5fd; font-weight: bold; font-size: 15px; color: var(--btn-blue); outline:none; cursor:pointer;}
+
+        /* หน้าวงล้อ และ จับเวลา */
         .container { background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: var(--shadow-md); gap: 50px; flex-wrap: wrap; width: 100%; justify-content: center; position: relative; z-index: 1; }
         .control-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; }
         label { font-weight: 600; margin-bottom: 10px; color: #475569; font-size: 15px; }
         textarea { width: 100%; height: 180px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; resize: vertical; margin-bottom: 20px; line-height: 1.6; transition: all 0.3s; background: #f8fafc; }
-        textarea:focus { border-color: var(--btn-blue); background: white; }
-        
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .btn-row { display: flex; gap: 12px; }
-        .btn-update { background-color: #475569; color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; flex: 1; transition: all 0.3s; }
-        .btn-sync { background-color: #8b5cf6; color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; flex: 1; transition: all 0.3s; }
-        .btn-spin { background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; font-size: 20px; font-weight: 700; padding: 18px; border-radius: 16px; box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3); border: none; cursor: pointer; transition: all 0.3s; }
-        .btn-spin:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8; }
-        
+        .btn-update, .btn-sync { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; flex: 1; transition: all 0.3s; }
+        .btn-update { background-color: #475569; } .btn-sync { background-color: #8b5cf6; }
+        .btn-spin { background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; font-size: 20px; font-weight: 700; padding: 18px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.3s; }
         .wheel-section { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.6s; }
         .wheel-section.fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); z-index: 50; }
         .wheel-container { position: relative; width: 380px; height: 380px; max-width: 90vw; max-height: 90vw; display: flex; justify-content: center; align-items: center; transition: all 0.6s; }
@@ -146,31 +125,42 @@
         .modal-btns { display: flex; gap: 15px; justify-content: center; margin-top:20px; }
         .modal-btns button { flex: 1; border-radius: 12px; padding: 14px; font-size: 16px; border: none; cursor: pointer; font-weight: 600; color:white;}
 
-        /* หน้าจับเวลา */
-        #timer-page .card { background: linear-gradient(145deg, #fff1f2, #ffe4e6); border: 1px solid #fecdd3; }
+        #timer-page .card { background: linear-gradient(145deg, #fff1f2, #ffe4e6); border: 1px solid #fecdd3; transition: all 0.4s ease; }
         .timer-container { display: flex; flex-direction: column; align-items: center; gap: 25px; }
-        .matchup-selector { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; background: white; padding: 25px; border-radius: 16px; border: 1px solid #fecdd3; }
+        .matchup-selector { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; background: white; padding: 25px; border-radius: 16px; border: 1px solid #fecdd3; transition: all 0.4s ease; }
         .matchup-selector select { padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 18px; font-weight: 600; min-width: 180px; text-align: center; }
         .matchup-vs { font-size: 28px; font-weight: 800; color: #f43f5e; background: #fff1f2; padding: 10px 20px; border-radius: 50%; }
         .timer-setup { display: flex; gap: 15px; align-items: center; margin-top: 10px; background: white; padding: 15px 25px; border-radius: 16px; border: 1px solid #fecdd3; }
         .timer-setup input { padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 20px; font-weight: 700; width: 90px; text-align: center; color: #f43f5e; }
-        
-        .timer-display { font-size: 240px; font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; line-height: 1; margin: 30px 0; text-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .timer-display { font-size: 240px; font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; line-height: 1; margin: 30px 0; text-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: all 0.3s ease; }
         .timer-display.danger { color: #e11d48; animation: pulse 1s infinite; text-shadow: 0 10px 30px rgba(225, 29, 72, 0.3); }
         @media (max-width: 768px) { .timer-display { font-size: 120px; } }
-        
-        .timer-controls { display: flex; gap: 15px; width: 100%; max-width: 450px; }
-        .timer-controls button { padding: 16px; font-size: 18px; border-radius: 14px; border:none; font-weight:600; cursor:pointer; flex:1; color:white;}
-        
-        /* สรุปคะแนน */
+        .timer-controls { display: flex; gap: 15px; width: 100%; max-width: 500px; transition: all 0.4s ease; }
+        .timer-controls button { padding: 16px; font-size: 18px; border-radius: 14px; border:none; font-weight:600; cursor:pointer; flex:1; color:white; transition: 0.3s;}
         .score-summary { background: white; border-radius: 20px; padding: 30px; border: 2px solid #ffe4e6; width:100%; margin-top:20px;}
         .score-summary input { font-size: 24px; font-weight: 800; color: #e11d48; width: 100px; height: 70px; border-radius: 12px; background: #fff1f2; border: 2px solid #fecdd3; text-align: center; }
-        
-        /* แผงควบคุมเพลง */
         .music-control { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 30px; margin-top: -10px; margin-bottom: 20px; border: 1px solid #fecdd3;}
         .music-control label { margin: 0; color: #be123c; font-weight: 600; cursor: pointer;}
         .music-control input[type="range"] { accent-color: #f43f5e; }
 
+        /* Fullscreen Timer Settings */
+        #timer-page.fullscreen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            z-index: 99999; display: flex !important; justify-content: center; align-items: center; padding: 20px;
+        }
+        #timer-page.fullscreen .card.timer-container { background: transparent; border: none; box-shadow: none; width: 100%; max-width: 1300px; height: 100%; justify-content: center; }
+        #timer-page.fullscreen .card-header, #timer-page.fullscreen .timer-setup, #timer-page.fullscreen .music-control, #timer-page.fullscreen .score-summary { display: none !important; }
+        #timer-page.fullscreen .matchup-selector { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); margin-bottom: 10px; max-width: 900px; }
+        #timer-page.fullscreen .matchup-selector select { background: #1e293b; color: white; border-color: #f43f5e; font-size: 26px; padding: 16px 24px; min-width: 240px; }
+        #timer-page.fullscreen .matchup-vs { background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5); }
+        #timer-page.fullscreen .timer-display { font-size: 24vw; color: #ffffff; text-shadow: 0 15px 50px rgba(244, 63, 94, 0.4); margin: 10px 0; }
+        @media (min-width: 1200px) { #timer-page.fullscreen .timer-display { font-size: 280px; } }
+        #timer-page.fullscreen .timer-display.danger { color: #f43f5e; text-shadow: 0 0 60px rgba(244, 63, 94, 0.8); }
+        
+        @keyframes popCountdown { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .countdown-number { color: #f59e0b !important; animation: popCountdown 0.9s cubic-bezier(0.16, 1, 0.3, 1) infinite; text-shadow: 0 0 40px rgba(245, 158, 11, 0.6) !important; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
     </style>
 </head>
 <body>
@@ -191,22 +181,31 @@
         <div class="card">
             <div class="card-header">
                 <h2>ตารางคะแนนสะสม</h2>
-                <span id="sync-status" class="sync-badge warning">กำลังโหลด...</span>
+                <div style="display:flex; gap:15px; align-items:center; flex-wrap: wrap;">
+                    <div class="base-config">
+                        <label style="margin:0; color:var(--btn-blue);">จำนวนฐานแข่ง:</label>
+                        <select id="base-count-select" onchange="updateBaseCount()">
+                            <option value="1">1 ฐาน</option>
+                            <option value="2">2 ฐาน</option>
+                            <option value="3">3 ฐาน</option>
+                            <option value="4" selected>4 ฐาน</option>
+                            <option value="5">5 ฐาน</option>
+                            <option value="6">6 ฐาน</option>
+                        </select>
+                    </div>
+                    <span id="sync-status" class="sync-badge warning">กำลังโหลด...</span>
+                </div>
             </div>
             
             <div class="add-team-form">
-                <input type="text" id="new-team-name" placeholder="ชื่อทีม หรือ ชื่อบุคคล" onkeypress="handleEnter(event)">
-                <input type="number" id="new-team-score" placeholder="คะแนนเริ่ม" value="0" onkeypress="handleEnter(event)">
+                <input type="text" id="new-team-name" placeholder="พิมพ์ชื่อทีม หรือ ชื่อบุคคล" onkeypress="handleEnter(event)">
                 <button class="btn-add" onclick="addTeam()">➕ เพิ่มรายชื่อ</button>
             </div>
 
             <div class="table-responsive">
                 <table>
-                    <thead>
-                        <tr>
-                            <th width="15%">อันดับ</th><th width="35%" style="text-align: left;">รายชื่อ / ทีม</th>
-                            <th width="35%">คะแนน</th><th width="15%">จัดการ</th>
-                        </tr>
+                    <thead id="leaderboard-head">
+                        <!-- หัวตารางจะถูกสร้างผ่าน JavaScript -->
                     </thead>
                     <tbody id="leaderboard-body"></tbody>
                 </table>
@@ -251,12 +250,11 @@
             <div class="timer-setup">
                 <label style="font-size: 18px; font-weight: 700; color: #881337; margin:0;">ตั้งเวลา (นาที): </label>
                 <input type="number" id="timer-minutes" value="5" min="1" max="120">
-                <button onclick="setTimer()" style="background: #e11d48; border-radius: 10px; border:none; color:white; font-weight:bold; padding: 12px 20px;">อัปเดตเวลา</button>
+                <button onclick="setTimer()" style="background: #e11d48; border-radius: 10px; border:none; color:white; font-weight:bold; padding: 12px 20px; cursor:pointer;">อัปเดตเวลา</button>
             </div>
 
             <div class="timer-display" id="timer-display">05:00</div>
 
-            <!-- ตัวควบคุมเพลงพื้นหลัง -->
             <div class="music-control">
                 <input type="checkbox" id="bgm-toggle" checked>
                 <label for="bgm-toggle">🎵 เล่นเพลงแดนซ์พื้นหลัง</label>
@@ -267,10 +265,12 @@
                 <button id="btn-timer-start" onclick="startTimer()" style="background: linear-gradient(135deg, #10b981, #059669);">▶️ เริ่ม</button>
                 <button id="btn-timer-pause" onclick="pauseTimer()" style="display: none; background: linear-gradient(135deg, #f59e0b, #d97706);">⏸️ พัก</button>
                 <button onclick="resetTimer()" style="background: linear-gradient(135deg, #64748b, #475569);">🔄 เริ่มใหม่</button>
+                <button onclick="toggleFullscreenTimer()" style="background: linear-gradient(135deg, #3b82f6, #2563eb); max-width: 140px;">⛶ เต็มจอ</button>
             </div>
 
             <div class="score-summary">
-                <h3 style="text-align: center; color: #be123c; margin-top: 0;">📝 สรุปผลคะแนนแข่งขัน</h3>
+                <h3 style="text-align: center; color: #be123c; margin-top: 0; margin-bottom: 20px;">📝 สรุปผลคะแนนแข่งขัน</h3>
+                
                 <div style="display: flex; justify-content: center; gap: 30px; align-items: center; flex-wrap: wrap;">
                     <div style="text-align: center;">
                         <div id="summary-team1-name" style="font-weight: 700; margin-bottom: 10px;">ทีม 1</div>
@@ -282,7 +282,15 @@
                         <input type="number" id="match-score-team2" value="0">
                     </div>
                 </div>
-                <div style="text-align: center; margin-top: 30px;">
+                
+                <div style="text-align: center; margin-top: 25px; background: #fff1f2; padding: 15px; border-radius: 12px;">
+                    <label style="font-weight:bold; color:#881337; margin-right: 10px;">บวกคะแนนเข้าตารางใน :</label>
+                    <select id="timer-target-base" style="padding: 8px 12px; border-radius: 8px; border: 2px solid #fecdd3; font-size:16px; font-weight:bold; color: #e11d48; outline:none; cursor:pointer;">
+                        <!-- ตัวเลือกฐานจะถูกเพิ่มอัตโนมัติ -->
+                    </select>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
                     <button onclick="saveMatchScore()" style="background: linear-gradient(135deg, #e11d48, #be123c); border-radius: 14px; padding: 16px 30px; font-size: 18px; color:white; border:none; font-weight:bold; cursor:pointer;">💾 บันทึกคะแนนเข้าตารางหลัก</button>
                 </div>
             </div>
@@ -302,27 +310,22 @@
         </div>
     </div>
 
-    <!-- Audio Element สำหรับเพลงพื้นหลังจับเวลา (เปลี่ยนลิงก์ที่เสถียร 100% และเพิ่ม crossorigin) -->
     <audio id="bgm-audio" loop preload="auto" crossorigin="anonymous">
-        <!-- ใช้ไฟล์เพลง Electronic จากเซิร์ฟเวอร์ของนักพัฒนาเว็บ (MDN) ที่ไม่มีวันโดนบล็อก -->
         <source src="https://raw.githubusercontent.com/mdn/webaudio-examples/master/audio-analyser/viper.mp3" type="audio/mpeg">
     </audio>
 
 <script>
-    /* =========================================
-       !!! นำ URL ของ Web App Google Sheets มาใส่ในบรรทัดด้านล่าง !!!
-    ========================================= */
     const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtFDEleSZv6NdvisB9qU3kU4w7wSvrRdoUeGkrWTSPS2N-LZlqemtr2EQs0IZMzP9c/exec'; 
 
-    // ข้อมูลเริ่มต้น
-    let teams = [
-        { id: 1, name: "ทีม A1", score: 0 }, { id: 2, name: "ทีม A2", score: 0 },
-        { id: 3, name: "ทีม A3", score: 0 }, { id: 4, name: "ทีม A4", score: 0 },
-        { id: 5, name: "ทีม A5", score: 0 }, { id: 6, name: "ทีม A6", score: 0 },
-        { id: 7, name: "ทีม A7", score: 0 }, { id: 8, name: "ทีม A8", score: 0 },
-        { id: 9, name: "ทีม A9", score: 0 }, { id: 10, name: "ทีม A10", score: 0 }
-    ];
-    let nextId = 11;
+    // โครงสร้างข้อมูลใหม่ รองรับคะแนนแยกฐาน (baseScores) และคะแนนรวม (totalScore)
+    let teams = [];
+    let nextId = 1;
+    let activeBases = 4; // ค่าเริ่มต้นจำนวนฐาน
+    
+    // ตั้งค่าเบื้องต้น
+    for(let i=1; i<=10; i++){
+        teams.push({ id: nextId++, name: `ทีม A${i}`, baseScores: [0,0,0,0,0,0], totalScore: 0 });
+    }
     
     const canvas = document.getElementById('wheel'); const ctx = canvas.getContext('2d');
     const spinBtn = document.getElementById('spin-btn'); const winnerDisplay = document.getElementById('winner-display');
@@ -333,32 +336,13 @@
     const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9', '#14b8a6', '#10b981', '#f59e0b', '#f97316'];
 
     let timerInterval = null; let totalSeconds = 300; let remainingSeconds = 300; let isTimerRunning = false;
+    let preCountdownInterval = null; let isPreCounting = false;
     
-    // ตัวแปรและฟังก์ชันจัดการเสียงเพลง
     const bgmAudio = document.getElementById('bgm-audio');
-    const bgmToggle = document.getElementById('bgm-toggle');
     const bgmVolume = document.getElementById('bgm-volume');
-    
-    // อัปเดตความดังตามที่ตั้งไว้
     bgmAudio.volume = bgmVolume.value;
     bgmVolume.addEventListener('input', (e) => { bgmAudio.volume = e.target.value; });
 
-    // ฟังก์ชันค่อยๆ หรี่เสียงลงก่อนจบ (Fade Out)
-    function fadeOutAudio(duration) {
-        if (bgmAudio.paused) return;
-        const fadeStep = bgmAudio.volume / (duration / 50);
-        const fadeInterval = setInterval(() => {
-            if (bgmAudio.volume > fadeStep) {
-                bgmAudio.volume -= fadeStep;
-            } else {
-                bgmAudio.pause();
-                bgmAudio.volume = bgmVolume.value; // รีเซ็ตระดับเสียงกลับ
-                clearInterval(fadeInterval);
-            }
-        }, 50);
-    }
-
-    // ฟังก์ชันสถานะ UI สวยๆ
     function setSyncStatus(type, msg) {
         const el = document.getElementById('sync-status'); el.className = 'sync-badge'; 
         if (type === 'success') { el.classList.add('success'); el.innerHTML = `☁️ ${msg}`; }
@@ -366,12 +350,34 @@
         else if (type === 'error') { el.classList.add('error'); el.innerHTML = `💾 ${msg}`; }
     }
 
+    // ระบบจัดการข้อมูลเพื่อรองรับโครงสร้างใหม่
+    function normalizeTeamData(dataArray) {
+        return dataArray.map(t => {
+            if (!t.baseScores) {
+                // ถ้าเป็นข้อมูลแบบเก่า (มีแค่ score) ให้ย้ายไปอยู่ฐาน 1
+                t.baseScores = [t.score || 0, 0, 0, 0, 0, 0];
+            } else {
+                // ขยายให้ครบ 6 ฐานเผื่อข้อมูลมาไม่ครบ
+                while(t.baseScores.length < 6) t.baseScores.push(0);
+            }
+            t.totalScore = t.baseScores.slice(0, activeBases).reduce((a, b) => a + b, 0);
+            return t;
+        });
+    }
+
     function loadFromLocal(msg) {
         const savedData = localStorage.getItem('competition_data');
         if (savedData) {
             try {
                 const data = JSON.parse(savedData);
-                if (data.teams) { teams = data.teams; nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1; }
+                if (data.activeBases) {
+                    activeBases = data.activeBases;
+                    document.getElementById('base-count-select').value = activeBases;
+                }
+                if (data.teams) { 
+                    teams = normalizeTeamData(data.teams);
+                    nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1; 
+                }
                 if (data.wheelNames) wheelNames = data.wheelNames;
             } catch (e) { console.error(e); }
         }
@@ -386,7 +392,14 @@
             if (!response.ok) throw new Error("Network error");
             const result = await response.json();
             if (result.status === 'success' && result.data) {
-                if (result.data.teams && result.data.teams.length > 0) { teams = result.data.teams; nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1; }
+                if (result.data.activeBases) {
+                    activeBases = result.data.activeBases;
+                    document.getElementById('base-count-select').value = activeBases;
+                }
+                if (result.data.teams && result.data.teams.length > 0) { 
+                    teams = normalizeTeamData(result.data.teams);
+                    nextId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1; 
+                }
                 if (result.data.wheelNames) wheelNames = result.data.wheelNames;
                 setSyncStatus('success', 'เชื่อมต่อออนไลน์แล้ว');
             }
@@ -405,7 +418,7 @@
     }
 
     async function saveData() {
-        const dataToSave = { teams: teams, wheelNames: wheelNames };
+        const dataToSave = { teams: teams, wheelNames: wheelNames, activeBases: activeBases };
         localStorage.setItem('competition_data', JSON.stringify(dataToSave));
         if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) { setSyncStatus('error', 'บันทึกลงเครื่องแล้ว'); return; }
         setSyncStatus('warning', 'กำลังซิงค์...');
@@ -426,49 +439,86 @@
         if(tabId === 'wheel') updateWheel(); else if (tabId === 'timer') populateTimerTeams();
     }
 
+    // ฟังก์ชันจัดการตารางรูปแบบใหม่
+    function updateBaseCount() {
+        activeBases = parseInt(document.getElementById('base-count-select').value) || 4;
+        renderLeaderboard();
+        populateTimerTeams(); // อัปเดตตัวเลือกฐานในหน้าจับเวลาด้วย
+        saveData();
+    }
+
     function renderLeaderboard() {
-        teams.sort((a, b) => b.score - a.score);
+        // คำนวณคะแนนรวมตามจำนวนฐานที่เลือกแสดง
+        teams.forEach(t => {
+            t.totalScore = t.baseScores.slice(0, activeBases).reduce((a, b) => a + b, 0);
+        });
+        teams.sort((a, b) => b.totalScore - a.totalScore);
+
+        // สร้าง Header ตาราง
+        const thead = document.getElementById('leaderboard-head');
+        let headerHtml = `<tr><th width="8%">อันดับ</th><th width="20%" style="text-align: left;">รายชื่อ / ทีม</th>`;
+        for (let i = 0; i < activeBases; i++) {
+            headerHtml += `<th>ฐาน ${i+1}</th>`;
+        }
+        headerHtml += `<th style="color:var(--btn-blue); font-size:17px;">รวม</th><th width="8%">ลบ</th></tr>`;
+        thead.innerHTML = headerHtml;
+
+        // สร้างข้อมูลในตาราง
         const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = '';
-        if(teams.length === 0) { tbody.innerHTML = '<tr><td colspan="4">ยังไม่มีรายชื่อ</td></tr>'; return; }
+        if(teams.length === 0) { tbody.innerHTML = `<tr><td colspan="${activeBases + 4}">ยังไม่มีรายชื่อ</td></tr>`; return; }
+        
         teams.forEach((team, index) => {
             let rankHtml = `<span style="color:#64748b; font-weight:600;">${index + 1}</span>`;
             if (index === 0) rankHtml = `<span class="rank-1">🥇 1</span>`; else if (index === 1) rankHtml = `<span class="rank-2">🥈 2</span>`; else if (index === 2) rankHtml = `<span class="rank-3">🥉 3</span>`;
-            tbody.innerHTML += `
-                <tr>
-                    <td>${rankHtml}</td>
-                    <td style="text-align: left; font-weight: 600; color:#1e293b;">
-                        <div style="display: flex; align-items: center; gap: 8px;">${team.name}
-                            <button class="btn-edit-name" onclick="editTeam(${team.id})">✏️</button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="score-controls">
-                            <button class="score-btn minus" onclick="updateScore(${team.id}, -1)">-</button>
-                            <input type="number" value="${team.score}" onchange="setDirectScore(${team.id}, this.value)">
-                            <button class="score-btn plus" onclick="updateScore(${team.id}, 1)">+1</button>
-                            <button class="score-btn plus" style="font-size:14px;" onclick="updateScore(${team.id}, 5)">+5</button>
-                        </div>
-                    </td>
-                    <td><button class="btn-delete-team" onclick="deleteTeam(${team.id})">ลบ</button></td>
-                </tr>
-            `;
+            
+            let rowHtml = `<tr>
+                <td>${rankHtml}</td>
+                <td style="text-align: left; font-weight: 600; color:#1e293b;">
+                    <div style="display: flex; align-items: center; gap: 5px;">${team.name}
+                        <button class="btn-edit-name" onclick="editTeam(${team.id})">✏️</button>
+                    </div>
+                </td>`;
+            
+            // วนลูปสร้างช่องกรอกคะแนนตามจำนวนฐาน
+            for (let i = 0; i < activeBases; i++) {
+                rowHtml += `<td>
+                    <input type="number" class="base-input" value="${team.baseScores[i]}" 
+                           onchange="updateBaseScore(${team.id}, ${i}, this.value)" 
+                           onfocus="this.select()">
+                </td>`;
+            }
+
+            rowHtml += `<td style="font-size:22px; font-weight:800; color:var(--btn-blue); background:#eff6ff; border-radius:8px;">${team.totalScore}</td>
+                <td><button class="btn-delete-team" onclick="deleteTeam(${team.id})">❌</button></td>
+            </tr>`;
+            
+            tbody.innerHTML += rowHtml;
         });
     }
 
+    // ฟังก์ชันอัปเดตคะแนนแต่ละฐาน
+    function updateBaseScore(teamId, baseIndex, value) {
+        const team = teams.find(t => t.id === teamId);
+        if (team) {
+            team.baseScores[baseIndex] = parseInt(value) || 0;
+            renderLeaderboard();
+            saveData();
+        }
+    }
+
     function addTeam() {
-        const nameInput = document.getElementById('new-team-name'); const scoreInput = document.getElementById('new-team-score');
-        const name = nameInput.value.trim(); const score = parseInt(scoreInput.value) || 0;
+        const nameInput = document.getElementById('new-team-name'); 
+        const name = nameInput.value.trim(); 
         if (name === '') { alert('กรุณาใส่ชื่อทีมหรือบุคคลครับ'); nameInput.focus(); return; }
-        teams.push({ id: nextId++, name: name, score: score });
-        nameInput.value = ''; scoreInput.value = '0'; nameInput.focus(); renderLeaderboard(); populateTimerTeams(); saveData();
+        teams.push({ id: nextId++, name: name, baseScores: [0,0,0,0,0,0], totalScore: 0 });
+        nameInput.value = ''; nameInput.focus(); renderLeaderboard(); populateTimerTeams(); saveData();
     }
 
     function handleEnter(e) { if (e.key === 'Enter') addTeam(); }
-    function updateScore(id, change) { const team = teams.find(t => t.id === id); if (team) { team.score += change; renderLeaderboard(); saveData(); } }
-    function setDirectScore(id, value) { const team = teams.find(t => t.id === id); if (team) { team.score = parseInt(value) || 0; renderLeaderboard(); saveData(); } }
     function editTeam(id) { const team = teams.find(t => t.id === id); if (team) { const newName = prompt('แก้ไขชื่อทีม:', team.name); if (newName !== null && newName.trim() !== '') { team.name = newName.trim(); renderLeaderboard(); populateTimerTeams(); saveData(); } } }
     function deleteTeam(id) { if(confirm('ยืนยันการลบรายชื่อนี้?')) { teams = teams.filter(t => t.id !== id); renderLeaderboard(); populateTimerTeams(); saveData(); } }
     
+    // --- โค้ดส่วนของวงล้อและเสียง (คงเดิม) ---
     function syncFromLeaderboard() {
         if(teams.length === 0) { alert('ไม่มีรายชื่อในตารางคะแนน'); return; }
         document.getElementById('names-input').value = [...teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => t.name).join('\n');
@@ -477,6 +527,13 @@
 
     function playTickSound() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
     function playCheerSound() { if (!audioCtx) return; const notes = [440, 554, 659, 880]; notes.forEach((freq, index) => { setTimeout(() => { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5); }, index * 120); }); }
+    function playCountdownBeep(isGo = false) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        if (isGo) { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.35, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+        } else { osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); gain.gain.setValueAtTime(0.25, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.2); }
+    }
 
     function updateWheel() {
         if (isSpinning) return; wheelNames = document.getElementById('names-input').value.split('\n').map(n => n.trim()).filter(n => n !== '');
@@ -501,9 +558,7 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         isSpinning = true; spinBtn.disabled = true; winnerDisplay.textContent = 'กำลังลุ้นระทึก...!';
         const totalSpin = 3240 + Math.floor(Math.random() * 360); currentRotation += totalSpin; canvas.style.transform = `rotate(${currentRotation}deg)`;
-        
         let ticks = 0; function triggerTick() { if (ticks >= 45) return; playTickSound(); ticks++; if (isSpinning) setTimeout(triggerTick, 30 + (Math.pow(ticks/45, 3) * 600)); } setTimeout(triggerTick, 50);
-
         setTimeout(() => {
             lastWinnerIndex = Math.floor(((270 - (currentRotation % 360) + 360) % 360) / (360 / wheelNames.length));
             const winner = wheelNames[lastWinnerIndex]; winnerDisplay.textContent = `🎉 ${winner} 🎉`; playCheerSound();
@@ -520,199 +575,147 @@
         isSpinning = false; spinBtn.disabled = false; lastWinnerIndex = -1;
     }
 
-    // ฟังก์ชันอัปเดตรายชื่อทีมในหน้าต่างจับเวลา
+    // --- โค้ดส่วนจับเวลา ---
     function populateTimerTeams() {
-        const t1 = document.getElementById('team1-select');
-        const t2 = document.getElementById('team2-select');
+        const t1 = document.getElementById('team1-select'); const t2 = document.getElementById('team2-select');
         if (!t1 || !t2) return;
-
-        const val1 = t1.value;
-        const val2 = t2.value;
-
+        const val1 = t1.value; const val2 = t2.value;
         const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
-
         let optionsHtml = '<option value="">-- เลือกทีม --</option>';
-        sortedTeams.forEach(t => {
-            optionsHtml += `<option value="${t.name}">${t.name}</option>`;
-        });
-
-        t1.innerHTML = optionsHtml;
-        t2.innerHTML = optionsHtml;
-
-        if (val1) t1.value = val1;
-        if (val2) t2.value = val2;
-
-        const summary1 = document.getElementById('summary-team1-name');
-        const summary2 = document.getElementById('summary-team2-name');
+        sortedTeams.forEach(t => { optionsHtml += `<option value="${t.name}">${t.name}</option>`; });
+        t1.innerHTML = optionsHtml; t2.innerHTML = optionsHtml;
+        if (val1) t1.value = val1; if (val2) t2.value = val2;
+        
+        const summary1 = document.getElementById('summary-team1-name'); const summary2 = document.getElementById('summary-team2-name');
         if (summary1) summary1.textContent = t1.value || 'ทีม 1';
         if (summary2) summary2.textContent = t2.value || 'ทีม 2';
+
+        // สร้างตัวเลือกฐานสำหรับบันทึกคะแนน
+        const targetBaseSelect = document.getElementById('timer-target-base');
+        if (targetBaseSelect) {
+            targetBaseSelect.innerHTML = '';
+            for (let i = 0; i < activeBases; i++) {
+                targetBaseSelect.innerHTML += `<option value="${i}">ฐาน ${i+1}</option>`;
+            }
+        }
     }
 
-    // บังคับกำหนดเป็น Global Function เพื่อป้องกัน ReferenceError
     window.updateTimerDisplay = function(seconds) {
-        const display = document.getElementById('timer-display');
-        if (!display) return; // ป้องกัน Error ถ้าหาหน้าจอไม่เจอ
+        const display = document.getElementById('timer-display'); if (!display) return;
         const m = Math.floor(seconds / 60).toString().padStart(2, '0');
         const s = (seconds % 60).toString().padStart(2, '0');
         display.textContent = `${m}:${s}`;
-        
-        if (seconds <= 10 && seconds > 0) {
-            display.classList.add('danger');
-        } else {
-            display.classList.remove('danger');
-        }
+        if (seconds <= 10 && seconds > 0) display.classList.add('danger'); else display.classList.remove('danger');
     };
 
-    // บังคับกำหนดเป็น Global Function 
     window.setTimer = function() {
-        if (isTimerRunning) return; 
-        const minsInput = document.getElementById('timer-minutes');
-        if (!minsInput) return;
-        const mins = parseInt(minsInput.value) || 5;
-        totalSeconds = mins * 60;
-        remainingSeconds = totalSeconds;
+        if (isTimerRunning || isPreCounting) return; 
+        const minsInput = document.getElementById('timer-minutes'); if (!minsInput) return;
+        totalSeconds = (parseInt(minsInput.value) || 5) * 60; remainingSeconds = totalSeconds;
         window.updateTimerDisplay(remainingSeconds);
     };
 
-    function playStartSound() {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.1);
-        osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    function playAlarmSound() {
+        if (!audioCtx) return; const notes = [600, 800, 600, 800, 600, 800];
+        notes.forEach((freq, index) => { setTimeout(() => { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'square'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }, index * 300); });
     }
 
-    // เสียงแจ้งเตือนตอนหมดเวลา (ป้องกัน Error ฟังก์ชันหาย)
-    function playAlarmSound() {
-        if (!audioCtx) return;
-        const notes = [600, 800, 600, 800, 600, 800];
-        notes.forEach((freq, index) => {
-            setTimeout(() => {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.type = 'square'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-            }, index * 300);
-        });
+    function toggleFullscreenTimer() {
+        const timerPage = document.getElementById('timer-page');
+        if (timerPage.classList.contains('fullscreen')) exitFullscreenTimer();
+        else { timerPage.classList.add('fullscreen'); if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(err => console.log(err)); }
+    }
+
+    function exitFullscreenTimer() {
+        const timerPage = document.getElementById('timer-page'); if(timerPage) timerPage.classList.remove('fullscreen');
+        if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(err => console.log(err));
     }
 
     function startTimer() {
-        if (isTimerRunning || remainingSeconds <= 0) return;
-        
-        const t1 = document.getElementById('team1-select').value;
-        const t2 = document.getElementById('team2-select').value;
+        if (isTimerRunning || isPreCounting || remainingSeconds <= 0) return;
+        const t1 = document.getElementById('team1-select').value; const t2 = document.getElementById('team2-select').value;
         if (!t1 || !t2) { alert('กรุณาเลือกทีมที่แข่งขันทั้ง 2 ทีมก่อนเริ่มจับเวลาครับ'); return; }
         if (t1 === t2) { alert('ไม่สามารถเลือกทีมเดียวกันแข่งกันเองได้ครับ'); return; }
-
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        playStartSound();
 
-        // ตรวจสอบ Audio Elements ให้แน่ใจว่าโหลดมาแล้ว
-        const bgmToggle = document.getElementById('bgm-toggle');
-        const bgmAudio = document.getElementById('bgm-audio');
-        const bgmVolume = document.getElementById('bgm-volume');
+        const timerPage = document.getElementById('timer-page'); timerPage.classList.add('fullscreen');
+        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch((err) => console.log(err));
 
-        if(bgmToggle && bgmToggle.checked && bgmAudio) {
-            bgmAudio.currentTime = 0; 
-            bgmAudio.volume = bgmVolume ? bgmVolume.value : 0.3; 
-            bgmAudio.play().catch(e => {
-                console.warn("ไม่สามารถเล่นเพลงได้:", e);
-            });
-        }
+        isPreCounting = true;
+        document.getElementById('btn-timer-start').style.display = 'none'; document.getElementById('btn-timer-pause').style.display = 'none'; 
+        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; });
 
-        isTimerRunning = true;
-        document.getElementById('btn-timer-start').style.display = 'none';
-        document.getElementById('btn-timer-pause').style.display = 'inline-block';
-        
-        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.disabled = true;
-        });
+        let count = 5; const display = document.getElementById('timer-display');
+        display.classList.add('countdown-number'); display.textContent = count; playCountdownBeep(false);
 
-        timerInterval = setInterval(() => {
-            remainingSeconds--; 
-            // เรียกใช้แบบ Global
-            window.updateTimerDisplay(remainingSeconds);
-            if (remainingSeconds <= 10 && remainingSeconds > 0) playTickSound(); 
-            
-            if (remainingSeconds === 3 && bgmToggle && bgmToggle.checked) {
-                if(typeof fadeOutAudio === 'function') fadeOutAudio(3000); 
+        preCountdownInterval = setInterval(() => {
+            count--;
+            if (count > 0) { display.textContent = count; playCountdownBeep(false); } 
+            else if (count === 0) { display.textContent = "GO!"; display.style.color = "#10b981"; playCountdownBeep(true); } 
+            else {
+                clearInterval(preCountdownInterval); isPreCounting = false;
+                display.classList.remove('countdown-number'); display.style.color = "";
+                window.updateTimerDisplay(remainingSeconds);
+                document.getElementById('btn-timer-pause').style.display = 'inline-block';
+                startActualTimer();
             }
+        }, 1000);
+    }
 
+    function startActualTimer() {
+        const bgmToggle = document.getElementById('bgm-toggle'); const bgmAudio = document.getElementById('bgm-audio');
+        if(bgmToggle && bgmToggle.checked && bgmAudio) { bgmAudio.currentTime = 0; bgmAudio.play().catch(e => console.warn("ไม่สามารถเล่นเพลงได้:", e)); }
+        isTimerRunning = true;
+        timerInterval = setInterval(() => {
+            remainingSeconds--; window.updateTimerDisplay(remainingSeconds);
+            if (remainingSeconds <= 10 && remainingSeconds > 0) playTickSound(); 
+            if (remainingSeconds === 3 && bgmToggle && bgmToggle.checked && typeof fadeOutAudio === 'function') fadeOutAudio(3000); 
             if (remainingSeconds <= 0) {
                 clearInterval(timerInterval); isTimerRunning = false;
-                
-                const btnStart = document.getElementById('btn-timer-start');
-                const btnPause = document.getElementById('btn-timer-pause');
-                if(btnStart) btnStart.style.display = 'inline-block'; 
-                if(btnPause) btnPause.style.display = 'none';
-                
-                ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.disabled = false;
-                });
-                
-                playAlarmSound();
-                if(bgmAudio) bgmAudio.pause(); 
+                const btnStart = document.getElementById('btn-timer-start'); const btnPause = document.getElementById('btn-timer-pause');
+                if(btnStart) btnStart.style.display = 'inline-block'; if(btnPause) btnPause.style.display = 'none'; 
+                ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
+                playAlarmSound(); if(bgmAudio) bgmAudio.pause(); 
             }
         }, 1000);
     }
 
     function pauseTimer() { 
-        if (!isTimerRunning) return; 
-        clearInterval(timerInterval); 
-        isTimerRunning = false; 
-        
-        const btnStart = document.getElementById('btn-timer-start');
-        const btnPause = document.getElementById('btn-timer-pause');
-        if(btnStart) btnStart.style.display = 'inline-block'; 
-        if(btnPause) btnPause.style.display = 'none'; 
-        
-        const bgmAudio = document.getElementById('bgm-audio');
-        if(bgmAudio) bgmAudio.pause(); 
+        if (isPreCounting) { clearInterval(preCountdownInterval); isPreCounting = false; const display = document.getElementById('timer-display'); display.classList.remove('countdown-number'); display.style.color = ""; window.updateTimerDisplay(remainingSeconds); }
+        if (!isTimerRunning && !isPreCounting) return; 
+        clearInterval(timerInterval); isTimerRunning = false; 
+        const btnStart = document.getElementById('btn-timer-start'); const btnPause = document.getElementById('btn-timer-pause');
+        if(btnStart) btnStart.style.display = 'inline-block'; if(btnPause) btnPause.style.display = 'none'; 
+        const bgmAudio = document.getElementById('bgm-audio'); if(bgmAudio) bgmAudio.pause(); 
     }
 
     function resetTimer() { 
-        clearInterval(timerInterval); 
-        isTimerRunning = false; 
-        remainingSeconds = totalSeconds; 
-        
-        // เรียกใช้แบบ Global
-        window.updateTimerDisplay(remainingSeconds); 
-        
-        const btnStart = document.getElementById('btn-timer-start');
-        const btnPause = document.getElementById('btn-timer-pause');
-        if(btnStart) btnStart.style.display = 'inline-block'; 
-        if(btnPause) btnPause.style.display = 'none'; 
-        
-        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.disabled = false;
-        }); 
-        
-        const bgmAudio = document.getElementById('bgm-audio');
-        if(bgmAudio) {
-            bgmAudio.pause();
-            bgmAudio.currentTime = 0;
-        }
+        if (isPreCounting) { clearInterval(preCountdownInterval); isPreCounting = false; }
+        clearInterval(timerInterval); isTimerRunning = false; remainingSeconds = totalSeconds; 
+        const display = document.getElementById('timer-display');
+        if(display) { display.classList.remove('countdown-number'); display.style.color = ""; }
+        exitFullscreenTimer(); window.updateTimerDisplay(remainingSeconds); 
+        const btnStart = document.getElementById('btn-timer-start'); const btnPause = document.getElementById('btn-timer-pause');
+        if(btnStart) btnStart.style.display = 'inline-block'; if(btnPause) btnPause.style.display = 'none'; 
+        ['team1-select', 'team2-select', 'timer-minutes'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; }); 
+        const bgmAudio = document.getElementById('bgm-audio'); if(bgmAudio) { bgmAudio.pause(); bgmAudio.currentTime = 0; }
     }
 
+    // ฟังก์ชันบันทึกคะแนนรูปแบบใหม่ เลือกลงฐานที่ต้องการ
     function saveMatchScore() {
         const t1Name = document.getElementById('team1-select').value; const t2Name = document.getElementById('team2-select').value;
         const s1 = parseInt(document.getElementById('match-score-team1').value) || 0; const s2 = parseInt(document.getElementById('match-score-team2').value) || 0;
+        const targetBaseIndex = parseInt(document.getElementById('timer-target-base').value) || 0;
+        
         if (!t1Name || !t2Name) { alert('กรุณาเลือกทีมให้ครบทั้ง 2 ทีมก่อนบันทึกคะแนนครับ'); return; }
+        
         const team1 = teams.find(t => t.name === t1Name); const team2 = teams.find(t => t.name === t2Name);
-        if (team1) team1.score += s1; if (team2) team2.score += s2;
+        if (team1) team1.baseScores[targetBaseIndex] += s1; 
+        if (team2) team2.baseScores[targetBaseIndex] += s2;
+        
         renderLeaderboard(); saveData();
-        alert(`บันทึกคะแนนเรียบร้อยแล้ว!\n⭐ ${t1Name} ได้เพิ่ม ${s1} คะแนน\n⭐ ${t2Name} ได้เพิ่ม ${s2} คะแนน`);
+        
+        alert(`บันทึกคะแนนเรียบร้อยแล้ว!\n⭐ ${t1Name} ได้เพิ่ม ${s1} คะแนน ในฐาน ${targetBaseIndex + 1}\n⭐ ${t2Name} ได้เพิ่ม ${s2} คะแนน ในฐาน ${targetBaseIndex + 1}`);
         document.getElementById('match-score-team1').value = '0'; document.getElementById('match-score-team2').value = '0';
     }
 
