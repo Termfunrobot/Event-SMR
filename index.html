@@ -31,6 +31,26 @@
             align-items: center; min-height: 100vh; overflow-x: hidden; color: var(--text-main);
         }
 
+        /* --- กราฟิก Loading Overlay --- */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 999999; display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            transition: opacity 0.4s ease;
+        }
+        .loader-robot { font-size: 65px; animation: bounce 0.8s infinite alternate cubic-bezier(0.5, 0.05, 1, 0.5); margin-bottom: 10px; }
+        .spinner {
+            width: 50px; height: 50px; border: 6px solid #e2e8f0;
+            border-top-color: var(--btn-blue); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        .loading-text { font-size: 24px; font-weight: 700; color: var(--btn-blue); margin: 0 0 5px 0; }
+        .loading-subtext { font-size: 16px; color: var(--text-muted); margin: 0; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-20px); } }
+        /* --------------------------- */
+
         .project-header {
             text-align: center; margin-bottom: 30px; width: 100%; max-width: 950px;
             background: var(--primary-gradient); color: white; padding: 35px 20px;
@@ -43,12 +63,12 @@
         .navbar {
             background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
             padding: 12px; border-radius: 16px; box-shadow: var(--shadow-sm); margin-bottom: 30px;
-            display: flex; flex-wrap: wrap; gap: 12px; width: 100%; max-width: 950px; justify-content: center;
+            display: flex; flex-wrap: wrap; gap: 10px; width: 100%; max-width: 950px; justify-content: center;
             border: 1px solid rgba(255,255,255,0.4);
         }
         .nav-btn {
-            background: transparent; border: none; padding: 14px 28px; font-size: 16px; font-weight: 600;
-            color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: all 0.4s; flex: 1; min-width: 120px; text-align: center;
+            background: transparent; border: none; padding: 12px 20px; font-size: 16px; font-weight: 600;
+            color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: all 0.4s; flex: 1; min-width: 110px; text-align: center;
         }
         .nav-btn:hover { color: var(--btn-blue); }
         .nav-btn.active { background: var(--btn-blue); color: white; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35); transform: translateY(-2px); }
@@ -85,7 +105,7 @@
         .btn-add:hover { background: #059669; transform: translateY(-2px); }
 
         .table-responsive { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-color); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; background: white; min-width: 600px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; background: white; min-width: 700px; }
         th { background: #f1f5f9; color: #334155; padding: 15px 10px; font-weight: 700; font-size: 15px; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle; font-size: 16px; }
         tbody tr { transition: all 0.2s; }
@@ -95,14 +115,14 @@
         .rank-2 { color: #94a3b8; font-size: 22px; font-weight: 700; }
         .rank-3 { color: #b45309; font-size: 20px; font-weight: 700; }
 
-        .base-input { width: 65px; text-align: center; padding: 8px; border: 2px solid transparent; border-radius: 8px; font-size: 16px; font-weight: 700; color: var(--btn-blue); background: #f1f5f9; transition: 0.3s; }
-        .base-input:focus { border-color: var(--btn-blue); background: white; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1);}
+        .base-input { width: 100%; max-width: 120px; text-align: center; padding: 10px; border: 2px solid transparent; border-radius: 8px; font-size: 20px; font-weight: 800; color: var(--btn-blue); background: #f1f5f9; transition: 0.3s; }
+        .base-input:focus { border-color: var(--btn-blue); background: white; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.15);}
         .base-input:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: transparent; box-shadow: none; }
         
-        .lock-label { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-muted); margin-top: 6px; padding: 4px; border-radius: 6px; transition: 0.2s; }
-        .lock-label:hover { background: #e2e8f0; }
-        .lock-label input[type="checkbox"] { cursor: pointer; accent-color: #ef4444; width: 14px; height: 14px; margin: 0; }
-        .lock-label.is-locked { color: #ef4444; font-weight: 700; }
+        .lock-label { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text-muted); padding: 8px 12px; border-radius: 8px; transition: 0.2s; background: white; border: 1px solid var(--border-color); }
+        .lock-label:hover { background: #f1f5f9; }
+        .lock-label input[type="checkbox"] { cursor: pointer; accent-color: #ef4444; width: 16px; height: 16px; margin: 0; }
+        .lock-label.is-locked { color: #ef4444; border-color: #fecaca; background: #fef2f2; }
 
         .btn-delete-team { background: #fef2f2; color: var(--btn-red); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
         .btn-delete-team:hover { background: var(--btn-red); color: white; }
@@ -137,7 +157,6 @@
         .modal-btns button { flex: 1; border-radius: 12px; padding: 14px; font-size: 16px; border: none; cursor: pointer; font-weight: 600; color:white; transition: 0.2s; }
         .modal-btns button:hover { transform: translateY(-2px); }
 
-        /* ช่องกรอกรหัสผ่าน */
         #pwd-modal-input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 20px; text-align: center; margin-bottom: 20px; outline: none; transition: 0.3s; letter-spacing: 2px; }
         #pwd-modal-input:focus { border-color: var(--btn-blue); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
 
@@ -153,8 +172,7 @@
         @media (max-width: 768px) { .timer-display { font-size: 120px; } }
         .timer-controls { display: flex; gap: 15px; width: 100%; max-width: 500px; transition: all 0.4s ease; }
         .timer-controls button { padding: 16px; font-size: 18px; border-radius: 14px; border:none; font-weight:600; cursor:pointer; flex:1; color:white; transition: 0.3s;}
-        .score-summary { background: white; border-radius: 20px; padding: 30px; border: 2px solid #ffe4e6; width:100%; margin-top:20px;}
-        .score-summary input { font-size: 24px; font-weight: 800; color: #e11d48; width: 100px; height: 70px; border-radius: 12px; background: #fff1f2; border: 2px solid #fecdd3; text-align: center; }
+        
         .music-control { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 30px; margin-top: -10px; margin-bottom: 20px; border: 1px solid #fecdd3;}
         .music-control label { margin: 0; color: #be123c; font-weight: 600; cursor: pointer;}
         .music-control input[type="range"] { accent-color: #f43f5e; }
@@ -165,7 +183,7 @@
             z-index: 99999; display: flex !important; justify-content: center; align-items: center; padding: 20px;
         }
         #timer-page.fullscreen .card.timer-container { background: transparent; border: none; box-shadow: none; width: 100%; max-width: 1300px; height: 100%; justify-content: center; }
-        #timer-page.fullscreen .card-header, #timer-page.fullscreen .timer-setup, #timer-page.fullscreen .music-control, #timer-page.fullscreen .score-summary { display: none !important; }
+        #timer-page.fullscreen .card-header, #timer-page.fullscreen .timer-setup, #timer-page.fullscreen .music-control { display: none !important; }
         #timer-page.fullscreen .matchup-selector { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); margin-bottom: 10px; max-width: 900px; }
         #timer-page.fullscreen .matchup-selector select { background: #1e293b; color: white; border-color: #f43f5e; font-size: 26px; padding: 16px 24px; min-width: 240px; }
         #timer-page.fullscreen .matchup-vs { background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5); }
@@ -180,14 +198,23 @@
 </head>
 <body>
 
+    <!-- กราฟิก Loading Overlay หน้าจอโหลด -->
+    <div id="loading-overlay">
+        <div class="loader-robot">🤖</div>
+        <div class="spinner"></div>
+        <h2 class="loading-text">กำลังโหลดข้อมูล...</h2>
+        <p class="loading-subtext">กรุณารอสักครู่</p>
+    </div>
+
     <div class="project-header">
         <h1 id="main-project-title">🤖 ระบบจัดการการแข่งขัน</h1>
         <p id="main-project-subtitle">สร้างและจัดการกิจกรรม ตารางคะแนน วงล้อสุ่ม และจับเวลา</p>
     </div>
 
     <nav class="navbar">
-        <button class="nav-btn active" id="tab-events" onclick="switchTab('events')">🏠 หน้าแรก (กิจกรรม)</button>
-        <button class="nav-btn" id="tab-leaderboard" onclick="switchTab('leaderboard')" style="display: none;">🏆 ตารางคะแนน</button>
+        <button class="nav-btn active" id="tab-events" onclick="switchTab('events')">🏠 หน้าแรก</button>
+        <button class="nav-btn" id="tab-leaderboard" onclick="switchTab('leaderboard')" style="display: none;">🏆 คะแนนรวม</button>
+        <button class="nav-btn" id="tab-bases" onclick="switchTab('bases')" style="display: none;">📝 จัดการฐาน</button>
         <button class="nav-btn" id="tab-wheel" onclick="switchTab('wheel')" style="display: none;">🎡 วงล้อสุ่ม</button>
         <button class="nav-btn" id="tab-timer" onclick="switchTab('timer')" style="display: none;">⏱️ จับเวลา</button>
     </nav>
@@ -205,14 +232,38 @@
         </div>
     </div>
 
-    <!-- ตารางคะแนน -->
+    <!-- ตารางคะแนนรวม (หน้าหลักของกิจกรรม) -->
     <div id="leaderboard-page" class="page">
         <div class="card">
             <div class="card-header">
-                <h2>ตารางคะแนนสะสม</h2>
+                <h2>ตารางคะแนนรวม (อัปเดตเรียลไทม์)</h2>
+                <span id="sync-status-leaderboard" class="sync-badge warning">กำลังโหลด...</span>
+            </div>
+            
+            <div class="add-team-form">
+                <input type="text" id="new-team-name" placeholder="พิมพ์ชื่อทีม หรือ ชื่อบุคคล เพื่อเพิ่มเข้าสู่การแข่งขัน" onkeypress="handleEnter(event)">
+                <button class="btn-add" onclick="addTeam()">➕ เพิ่มรายชื่อ</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead id="leaderboard-head">
+                        <!-- สร้างผ่าน JS -->
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าจัดการคะแนนแต่ละฐาน แยกออกมาเฉพาะ -->
+    <div id="bases-page" class="page">
+        <div class="card">
+            <div class="card-header">
+                <h2>จัดการคะแนนแต่ละฐาน</h2>
                 <div style="display:flex; gap:15px; align-items:center; flex-wrap: wrap;">
                     <div class="base-config">
-                        <label style="margin:0; color:var(--btn-blue);">จำนวนฐานแข่ง:</label>
+                        <label style="margin:0; color:var(--btn-blue);">จำนวนฐานทั้งหมด:</label>
                         <select id="base-count-select" onchange="updateBaseCount()">
                             <option value="1">1 ฐาน</option>
                             <option value="2">2 ฐาน</option>
@@ -222,19 +273,32 @@
                             <option value="6">6 ฐาน</option>
                         </select>
                     </div>
-                    <span id="sync-status" class="sync-badge warning">กำลังโหลด...</span>
                 </div>
             </div>
-            
-            <div class="add-team-form">
-                <input type="text" id="new-team-name" placeholder="พิมพ์ชื่อทีม หรือ ชื่อบุคคล" onkeypress="handleEnter(event)">
-                <button class="btn-add" onclick="addTeam()">➕ เพิ่มรายชื่อ</button>
+
+            <!-- แถบเลือกฐานสำหรับกรอกคะแนน -->
+            <div style="background: #eff6ff; padding: 20px; border-radius: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border: 1px solid #bfdbfe;">
+                <div style="display: flex; align-items: center;">
+                    <label style="font-weight:bold; color:var(--btn-blue); margin-right:15px; font-size: 18px;">เลือกฐานที่ต้องการลงคะแนน:</label>
+                    <select id="current-base-select" onchange="changeViewBase()" style="padding: 10px 15px; border-radius: 10px; border: 2px solid #93c5fd; font-size: 18px; font-weight: bold; color: var(--btn-blue); outline:none; cursor:pointer; min-width: 150px;">
+                        <!-- Options generated by JS -->
+                    </select>
+                </div>
+                <label id="current-base-lock-label" class="lock-label">
+                    <input type="checkbox" id="current-base-lock-cb" onchange="toggleCurrentBaseLock()"> 🔒 ป้องกันการแก้ไข (ล็อกฐาน)
+                </label>
             </div>
 
             <div class="table-responsive">
                 <table>
-                    <thead id="leaderboard-head"></thead>
-                    <tbody id="leaderboard-body"></tbody>
+                    <thead>
+                        <tr>
+                            <th width="15%">อันดับ (คะแนนรวม)</th>
+                            <th width="45%" style="text-align: left;">รายชื่อ / ทีม <span style="font-size:12px; color:#94a3b8; display:block; font-weight:400;">(เรียงตามตัวอักษร)</span></th>
+                            <th width="40%" style="color:var(--btn-blue);">คะแนนฐานที่เลือก</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bases-body"></tbody>
                 </table>
             </div>
         </div>
@@ -261,7 +325,7 @@
         </div>
     </div>
 
-    <!-- นาฬิกาจับเวลา -->
+    <!-- นาฬิกาจับเวลา (นำการกรอกคะแนนออก) -->
     <div id="timer-page" class="page">
         <div class="card timer-container">
             <div class="card-header" style="width: 100%; border-bottom-color: #fecdd3; margin-bottom:0;">
@@ -294,32 +358,6 @@
                 <button onclick="resetTimer()" style="background: linear-gradient(135deg, #64748b, #475569);">🔄 เริ่มใหม่</button>
                 <button onclick="toggleFullscreenTimer()" style="background: linear-gradient(135deg, #3b82f6, #2563eb); max-width: 140px;">⛶ เต็มจอ</button>
             </div>
-
-            <div class="score-summary">
-                <h3 style="text-align: center; color: #be123c; margin-top: 0; margin-bottom: 20px;">📝 สรุปผลคะแนนแข่งขัน</h3>
-                
-                <div style="display: flex; justify-content: center; gap: 30px; align-items: center; flex-wrap: wrap;">
-                    <div style="text-align: center;">
-                        <div id="summary-team1-name" style="font-weight: 700; margin-bottom: 10px;">ทีม 1</div>
-                        <input type="number" id="match-score-team1" value="0">
-                    </div>
-                    <span style="font-size: 32px; font-weight: bold; color: #fecdd3;">-</span>
-                    <div style="text-align: center;">
-                        <div id="summary-team2-name" style="font-weight: 700; margin-bottom: 10px;">ทีม 2</div>
-                        <input type="number" id="match-score-team2" value="0">
-                    </div>
-                </div>
-                
-                <div style="text-align: center; margin-top: 25px; background: #fff1f2; padding: 15px; border-radius: 12px;">
-                    <label style="font-weight:bold; color:#881337; margin-right: 10px;">บวกคะแนนเข้าตารางใน :</label>
-                    <select id="timer-target-base" style="padding: 8px 12px; border-radius: 8px; border: 2px solid #fecdd3; font-size:16px; font-weight:bold; color: #e11d48; outline:none; cursor:pointer;">
-                    </select>
-                </div>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <button onclick="saveMatchScore()" style="background: linear-gradient(135deg, #e11d48, #be123c); border-radius: 14px; padding: 16px 30px; font-size: 18px; color:white; border:none; font-weight:bold; cursor:pointer;">💾 บันทึกคะแนนเข้าตารางหลัก</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -341,7 +379,6 @@
         <div class="modal-content" style="max-width: 400px; padding: 30px;">
             <h3 id="pwd-modal-title" style="color: #3b82f6; font-size:24px; margin-top:0;">🔒 กรอกรหัสผ่าน</h3>
             <p id="pwd-modal-desc" style="color:#64748b; font-size: 15px; margin-bottom: 20px; line-height: 1.5;"></p>
-            <!-- ซ่อนตัวอักษรโดยใช้ type="password" -->
             <input type="password" id="pwd-modal-input" placeholder="พิมพ์รหัสผ่าน..." autocomplete="off">
             <div class="modal-btns">
                 <button id="pwd-modal-cancel" style="background:#94a3b8;">ยกเลิก</button>
@@ -355,6 +392,25 @@
     </audio>
 
 <script>
+    /* =========================================
+       ฟังก์ชันควบคุม Loading Overlay
+    ========================================= */
+    function showLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+        }
+    }
+
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 400); 
+        }
+    }
+
     /* =========================================
        ระบบฐานข้อมูลและรหัสผ่านแบบ Custom Modal
     ========================================= */
@@ -384,8 +440,8 @@
     let activeBases = 4;
     let lockedBases = [false, false, false, false, false, false];
     let wheelNames = [];
+    let currentViewedBaseIndex = 0;
 
-    // ฟังก์ชันสำหรับเรียกใช้งาน Modal กรอกรหัสผ่านแบบซ่อนตัวหนังสือ
     function promptPassword(title, desc) {
         return new Promise((resolve) => {
             const modal = document.getElementById('passwordModal');
@@ -422,7 +478,7 @@
                 `กิจกรรมนี้มีการเข้ารหัสป้องกันไว้<br>กรุณาใส่รหัสผ่านเพื่อเข้าถึง <b>"${ev.name}"</b>`
             );
             
-            if (inputPass === null) return false; // กดปุ่มยกเลิก
+            if (inputPass === null) return false; 
             
             if (inputPass !== ev.password) {
                 alert('❌ รหัสผ่านไม่ถูกต้อง! ไม่อนุญาตให้เข้าถึงข้อมูลครับ');
@@ -433,7 +489,7 @@
     }
 
     function setSyncStatus(type, msg) {
-        const el = document.getElementById('sync-status'); if(!el) return;
+        const el = document.getElementById('sync-status-leaderboard'); if(!el) return;
         el.className = 'sync-badge'; 
         if (type === 'success') { el.classList.add('success'); el.innerHTML = `☁️ ${msg}`; }
         else if (type === 'warning') { el.classList.add('warning'); el.innerHTML = `⏳ ${msg}`; }
@@ -441,11 +497,15 @@
     }
 
     async function loadData() {
+        showLoadingOverlay(); 
         setSyncStatus('warning', 'กำลังโหลดข้อมูล...');
+        
         if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
             loadFromLocal();
+            hideLoadingOverlay(); 
             return;
         }
+        
         try {
             const response = await fetch(GOOGLE_APP_SCRIPT_URL);
             if (!response.ok) throw new Error("Network error");
@@ -470,6 +530,8 @@
 
         if (!currentEventId) { renderEventList(); } 
         else { applyEventDataToMemory(); }
+        
+        hideLoadingOverlay(); 
     }
 
     function loadFromLocal() {
@@ -519,6 +581,7 @@
             wheelNames = data.wheelNames || [];
             activeBases = data.activeBases || 4;
             lockedBases = data.lockedBases || [false,false,false,false,false,false];
+            currentViewedBaseIndex = 0; 
 
             const baseSelect = document.getElementById('base-count-select');
             if(baseSelect) baseSelect.value = activeBases;
@@ -533,6 +596,7 @@
         
         document.getElementById('names-input').value = wheelNames.join('\n');
         renderLeaderboard();
+        renderBasePage();
         if (wheelNames.length === 0) syncFromLeaderboard(); else updateWheel();
         populateTimerTeams();
     }
@@ -559,7 +623,7 @@
     }
 
     function switchTab(tabId) {
-        ['events', 'leaderboard', 'wheel', 'timer'].forEach(id => {
+        ['events', 'leaderboard', 'bases', 'wheel', 'timer'].forEach(id => {
             const page = document.getElementById(id + '-page'); const tab = document.getElementById('tab-' + id);
             if(page) page.classList.remove('active'); if(tab) tab.classList.remove('active');
         });
@@ -570,12 +634,15 @@
             document.getElementById('main-project-title').innerText = "🤖 ระบบจัดการการแข่งขัน";
             document.getElementById('main-project-subtitle').innerText = "สร้างและจัดการกิจกรรม ตารางคะแนน วงล้อสุ่ม และจับเวลา";
             document.getElementById('tab-leaderboard').style.display = 'none';
+            document.getElementById('tab-bases').style.display = 'none';
             document.getElementById('tab-wheel').style.display = 'none';
             document.getElementById('tab-timer').style.display = 'none';
             currentEventId = null; 
         } else {
             if(tabId === 'wheel') updateWheel(); 
             else if (tabId === 'timer') populateTimerTeams();
+            else if (tabId === 'leaderboard') renderLeaderboard();
+            else if (tabId === 'bases') renderBasePage();
         }
     }
 
@@ -606,7 +673,9 @@
                 'รหัสผ่านนี้จะใช้ป้องกันการเข้าถึงข้อมูลของกิจกรรมนี้<br><span style="font-size:13.5px; color:#ef4444;">(ถ้าไม่ต้องการรหัสผ่าน ให้เว้นว่างไว้แล้วกดตกลง)</span>'
             );
             
-            if (password === null) return; // หากกดยกเลิก
+            if (password === null) return; 
+            
+            showLoadingOverlay();
             
             const newId = 'event_' + Date.now();
             appState.eventsList.push({ id: newId, name: name.trim(), password: password || '' });
@@ -615,7 +684,10 @@
             let newWheel = [];
 
             if (appState.eventsList.length > 1) {
+                hideLoadingOverlay();
                 const copyTeams = confirm('💡 ต้องการ "คัดลอกรายชื่อทีม" จากกิจกรรมเดิมมาใช้ด้วยหรือไม่?\n(คะแนนจะถูกเคลียร์เป็น 0 ทั้งหมดแบบแยกอิสระ)');
+                showLoadingOverlay();
+                
                 if (copyTeams) {
                     const prevEventId = appState.eventsList[appState.eventsList.length - 2].id;
                     const prevData = appState.eventData[prevEventId];
@@ -636,8 +708,9 @@
                 teams: newTeams, wheelNames: newWheel, activeBases: 4, lockedBases: [false,false,false,false,false,false]
             };
             
-            saveData();
+            await saveData();
             renderEventList();
+            hideLoadingOverlay();
         }
     }
 
@@ -653,14 +726,16 @@
                     '🔑 เปลี่ยนรหัสผ่าน', 
                     'ตั้งรหัสผ่านใหม่สำหรับกิจกรรมนี้<br><span style="font-size:13.5px; color:#ef4444;">(เว้นว่างไว้แล้วกดตกลง หากต้องการยกเลิกรหัสผ่าน)</span>'
                 );
-                if (newPass === null) return; // หากกดยกเลิก
+                if (newPass === null) return;
 
                 ev.name = newName.trim();
                 ev.password = newPass || '';
                 
-                saveData();
+                showLoadingOverlay();
+                await saveData();
                 renderEventList();
                 if(currentEventId === id) document.getElementById('main-project-title').innerText = ev.name;
+                hideLoadingOverlay();
             }
         }
     }
@@ -676,11 +751,13 @@
             if (!isAuth) return;
 
             if (confirm(`ยืนยันที่จะลบกิจกรรม "${ev.name}" พร้อมข้อมูลทั้งหมดหรือไม่?\n(การกระทำนี้ไม่สามารถย้อนกลับได้)`)) {
+                showLoadingOverlay();
                 appState.eventsList = appState.eventsList.filter(e => e.id !== id);
                 delete appState.eventData[id];
-                saveData();
+                await saveData();
                 renderEventList();
                 if (currentEventId === id) switchTab('events');
+                hideLoadingOverlay();
             }
         }
     }
@@ -691,34 +768,36 @@
             const isAuth = await authenticateEvent(ev);
             if (!isAuth) return;
 
+            showLoadingOverlay();
+
             currentEventId = id;
             document.getElementById('main-project-title').innerText = ev.name;
             document.getElementById('main-project-subtitle').innerText = "กำลังจัดการข้อมูลของกิจกรรมนี้อยู่";
 
             document.getElementById('tab-leaderboard').style.display = 'block';
+            document.getElementById('tab-bases').style.display = 'block';
             document.getElementById('tab-wheel').style.display = 'block';
             document.getElementById('tab-timer').style.display = 'block';
 
             applyEventDataToMemory();
             switchTab('leaderboard');
+            
+            setTimeout(() => { hideLoadingOverlay(); }, 300); 
         }
     }
 
     /* =========================================
-       ระบบทำงานในตารางคะแนน จับเวลา วงล้อ
+       ระบบทำงานในตารางคะแนน จับเวลา วงล้อ และหน้าจัดการฐาน
     ========================================= */
     function updateBaseCount() {
         activeBases = parseInt(document.getElementById('base-count-select').value) || 4;
+        if (currentViewedBaseIndex >= activeBases) currentViewedBaseIndex = 0;
+        
         renderLeaderboard();
+        renderBasePage();
         populateTimerTeams();
         saveData();
     }
-
-    window.toggleBaseLock = function(index) {
-        lockedBases[index] = !lockedBases[index];
-        renderLeaderboard();
-        saveData();
-    };
 
     function renderLeaderboard() {
         teams.forEach(t => {
@@ -727,19 +806,17 @@
         teams.sort((a, b) => b.totalScore - a.totalScore);
 
         const thead = document.getElementById('leaderboard-head');
-        let headerHtml = `<tr><th width="8%">อันดับ</th><th width="20%" style="text-align: left;">รายชื่อ / ทีม</th>`;
+        let headerHtml = `<tr>
+            <th width="8%">อันดับ</th>
+            <th width="20%" style="text-align: left;">รายชื่อ / ทีม</th>`;
+            
         for (let i = 0; i < activeBases; i++) {
-            const isLocked = lockedBases[i];
-            headerHtml += `<th>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span>ฐาน ${i+1}</span>
-                    <label class="lock-label ${isLocked ? 'is-locked' : ''}">
-                        <input type="checkbox" onchange="toggleBaseLock(${i})" ${isLocked ? 'checked' : ''}> 🔒 ล็อก
-                    </label>
-                </div>
-            </th>`;
+            headerHtml += `<th>ฐาน ${i+1}</th>`;
         }
-        headerHtml += `<th style="color:var(--btn-blue); font-size:17px; vertical-align:top; padding-top:20px;">รวม</th><th width="8%" style="vertical-align:top; padding-top:20px;">ลบ</th></tr>`;
+        
+        headerHtml += `<th style="color:var(--btn-blue); font-size:17px;">รวม</th>
+            <th width="8%">ลบ</th>
+        </tr>`;
         thead.innerHTML = headerHtml;
 
         const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = '';
@@ -756,15 +833,9 @@
                         <button class="btn-edit-name" onclick="editTeam(${team.id})">✏️</button>
                     </div>
                 </td>`;
-            
+
             for (let i = 0; i < activeBases; i++) {
-                const isLocked = lockedBases[i];
-                rowHtml += `<td>
-                    <input type="number" class="base-input" value="${team.baseScores[i]}" 
-                           onchange="updateBaseScore(${team.id}, ${i}, this.value)" 
-                           onfocus="this.select()"
-                           ${isLocked ? 'disabled title="ฐานนี้ถูกล็อกอยู่"' : ''}>
-                </td>`;
+                rowHtml += `<td style="color:#64748b; font-weight:600; font-size:17px;">${team.baseScores[i]}</td>`;
             }
 
             rowHtml += `<td style="font-size:22px; font-weight:800; color:var(--btn-blue); background:#eff6ff; border-radius:8px;">${team.totalScore}</td>
@@ -775,12 +846,76 @@
         });
     }
 
+    function changeViewBase() {
+        currentViewedBaseIndex = parseInt(document.getElementById('current-base-select').value) || 0;
+        renderBasePage();
+    }
+
+    function toggleCurrentBaseLock() {
+        lockedBases[currentViewedBaseIndex] = !lockedBases[currentViewedBaseIndex];
+        renderBasePage();
+        saveData();
+    }
+
+    function renderBasePage() {
+        const baseSelect = document.getElementById('current-base-select');
+        if (baseSelect) {
+            baseSelect.innerHTML = '';
+            for (let i = 0; i < activeBases; i++) {
+                const lockText = lockedBases[i] ? ' 🔒 (ล็อกอยู่)' : '';
+                baseSelect.innerHTML += `<option value="${i}">ฐาน ${i+1}${lockText}</option>`;
+            }
+            baseSelect.value = currentViewedBaseIndex;
+        }
+
+        const isLocked = lockedBases[currentViewedBaseIndex];
+        const lockLabel = document.getElementById('current-base-lock-label');
+        const lockCb = document.getElementById('current-base-lock-cb');
+        if (lockLabel && lockCb) {
+            lockCb.checked = isLocked;
+            if (isLocked) lockLabel.classList.add('is-locked');
+            else lockLabel.classList.remove('is-locked');
+        }
+
+        // 1. คำนวณคะแนนรวมและจัดอันดับก่อน
+        teams.forEach(t => { t.totalScore = t.baseScores.slice(0, activeBases).reduce((a, b) => a + b, 0); });
+        teams.sort((a, b) => b.totalScore - a.totalScore);
+        teams.forEach((t, i) => { t.currentRank = i + 1; }); // เก็บอันดับไว้
+
+        // 2. คัดลอกและเรียงตามตัวอักษรสำหรับแสดงผลในหน้าฐาน
+        let displayTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+
+        const tbody = document.getElementById('bases-body'); 
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if(displayTeams.length === 0) { tbody.innerHTML = `<tr><td colspan="3">ยังไม่มีรายชื่อ</td></tr>`; return; }
+        
+        displayTeams.forEach((team) => {
+            let rank = team.currentRank;
+            let rankHtml = `<span style="color:#64748b; font-weight:600;">${rank}</span>`;
+            if (rank === 1) rankHtml = `<span class="rank-1">🥇 1</span>`; else if (rank === 2) rankHtml = `<span class="rank-2">🥈 2</span>`; else if (rank === 3) rankHtml = `<span class="rank-3">🥉 3</span>`;
+            
+            tbody.innerHTML += `<tr>
+                <td>${rankHtml}</td>
+                <td style="text-align: left; font-weight: 600; color:#1e293b; font-size: 18px;">${team.name}</td>
+                <td>
+                    <input type="number" class="base-input" value="${team.baseScores[currentViewedBaseIndex]}" 
+                           onchange="updateBaseScore(${team.id}, ${currentViewedBaseIndex}, this.value)" 
+                           onfocus="this.select()"
+                           ${isLocked ? 'disabled title="ฐานนี้ถูกล็อกอยู่ ปลดล็อกก่อนแก้ไข"' : ''}>
+                </td>
+            </tr>`;
+        });
+    }
+
     function updateBaseScore(teamId, baseIndex, value) {
         if(lockedBases[baseIndex]) return; 
         const team = teams.find(t => t.id === teamId);
         if (team) {
             team.baseScores[baseIndex] = parseInt(value) || 0;
             renderLeaderboard();
+            renderBasePage();
             saveData();
         }
     }
@@ -790,12 +925,13 @@
         const name = nameInput.value.trim(); 
         if (name === '') { alert('กรุณาใส่ชื่อทีมหรือบุคคลครับ'); nameInput.focus(); return; }
         teams.push({ id: nextId++, name: name, baseScores: [0,0,0,0,0,0], totalScore: 0 });
-        nameInput.value = ''; nameInput.focus(); renderLeaderboard(); populateTimerTeams(); saveData();
+        nameInput.value = ''; nameInput.focus(); 
+        renderLeaderboard(); renderBasePage(); populateTimerTeams(); saveData();
     }
 
     function handleEnter(e) { if (e.key === 'Enter') addTeam(); }
-    function editTeam(id) { const team = teams.find(t => t.id === id); if (team) { const newName = prompt('แก้ไขชื่อทีม:', team.name); if (newName !== null && newName.trim() !== '') { team.name = newName.trim(); renderLeaderboard(); populateTimerTeams(); saveData(); } } }
-    function deleteTeam(id) { if(confirm('ยืนยันการลบรายชื่อนี้?')) { teams = teams.filter(t => t.id !== id); renderLeaderboard(); populateTimerTeams(); saveData(); } }
+    function editTeam(id) { const team = teams.find(t => t.id === id); if (team) { const newName = prompt('แก้ไขชื่อทีม:', team.name); if (newName !== null && newName.trim() !== '') { team.name = newName.trim(); renderLeaderboard(); renderBasePage(); populateTimerTeams(); saveData(); } } }
+    function deleteTeam(id) { if(confirm('ยืนยันการลบรายชื่อนี้?')) { teams = teams.filter(t => t.id !== id); renderLeaderboard(); renderBasePage(); populateTimerTeams(); saveData(); } }
     
     function syncFromLeaderboard() {
         if(teams.length === 0) { alert('ไม่มีรายชื่อในตารางคะแนน'); return; }
@@ -862,19 +998,6 @@
         sortedTeams.forEach(t => { optionsHtml += `<option value="${t.name}">${t.name}</option>`; });
         t1.innerHTML = optionsHtml; t2.innerHTML = optionsHtml;
         if (val1) t1.value = val1; if (val2) t2.value = val2;
-        
-        const summary1 = document.getElementById('summary-team1-name'); const summary2 = document.getElementById('summary-team2-name');
-        if (summary1) summary1.textContent = t1.value || 'ทีม 1';
-        if (summary2) summary2.textContent = t2.value || 'ทีม 2';
-
-        const targetBaseSelect = document.getElementById('timer-target-base');
-        if (targetBaseSelect) {
-            targetBaseSelect.innerHTML = '';
-            for (let i = 0; i < activeBases; i++) {
-                const lockText = lockedBases[i] ? ' 🔒 (ล็อก)' : '';
-                targetBaseSelect.innerHTML += `<option value="${i}">ฐาน ${i+1}${lockText}</option>`;
-            }
-        }
     }
 
     window.updateTimerDisplay = function(seconds) {
@@ -978,32 +1101,6 @@
         const bgmAudio = document.getElementById('bgm-audio'); if(bgmAudio) { bgmAudio.pause(); bgmAudio.currentTime = 0; }
     }
 
-    function saveMatchScore() {
-        const t1Name = document.getElementById('team1-select').value; const t2Name = document.getElementById('team2-select').value;
-        const s1 = parseInt(document.getElementById('match-score-team1').value) || 0; const s2 = parseInt(document.getElementById('match-score-team2').value) || 0;
-        const targetBaseIndex = parseInt(document.getElementById('timer-target-base').value) || 0;
-        
-        if (lockedBases[targetBaseIndex]) {
-            alert(`⚠️ ไม่สามารถบันทึกได้!\nฐาน ${targetBaseIndex + 1} ถูกล็อกอยู่ กรุณากลับไปปลดล็อกที่หน้า "ตารางคะแนน" ก่อนครับ`);
-            return;
-        }
-
-        if (!t1Name || !t2Name) { alert('กรุณาเลือกทีมให้ครบทั้ง 2 ทีมก่อนบันทึกคะแนนครับ'); return; }
-        
-        const team1 = teams.find(t => t.name === t1Name); const team2 = teams.find(t => t.name === t2Name);
-        if (team1) team1.baseScores[targetBaseIndex] += s1; 
-        if (team2) team2.baseScores[targetBaseIndex] += s2;
-        
-        renderLeaderboard(); saveData();
-        
-        alert(`บันทึกคะแนนเรียบร้อยแล้ว!\n⭐ ${t1Name} ได้เพิ่ม ${s1} คะแนน ในฐาน ${targetBaseIndex + 1}\n⭐ ${t2Name} ได้เพิ่ม ${s2} คะแนน ในฐาน ${targetBaseIndex + 1}`);
-        document.getElementById('match-score-team1').value = '0'; document.getElementById('match-score-team2').value = '0';
-    }
-
-    document.getElementById('team1-select').addEventListener('change', function() { document.getElementById('summary-team1-name').textContent = this.value || 'ทีม 1'; });
-    document.getElementById('team2-select').addEventListener('change', function() { document.getElementById('summary-team2-name').textContent = this.value || 'ทีม 2'; });
-
-    // ให้โหลดข้อมูลดึงก้อน Data ทุกอย่างตอนเปิดเพจครั้งแรก
     window.onload = () => { 
         loadData();
     };
