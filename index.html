@@ -75,7 +75,6 @@
         .loading-subtext { font-size: 16px; color: var(--text-muted); margin: 0; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-20px); } }
-        /* --------------------------- */
 
         /* --- SMR Badge --- */
         .smr-badge {
@@ -208,8 +207,9 @@
         .modal-btns button { flex: 1; border-radius: 12px; padding: 14px; font-size: 16px; border: none; cursor: pointer; font-weight: 600; color:white; transition: 0.2s; }
         .modal-btns button:hover { transform: translateY(-2px); }
 
-        #pwd-modal-input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 20px; text-align: center; margin-bottom: 20px; outline: none; transition: 0.3s; letter-spacing: 2px; }
-        #pwd-modal-input:focus { border-color: var(--btn-blue); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        #pwd-modal-input, #custom-prompt-input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 20px; text-align: center; margin-bottom: 20px; outline: none; transition: 0.3s; letter-spacing: 2px; }
+        #pwd-modal-input:focus, #custom-prompt-input:focus { border-color: var(--btn-blue); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        #custom-prompt-input { letter-spacing: normal; font-size: 18px; }
 
         #timer-page .card { background: linear-gradient(145deg, #fff1f2, #ffe4e6); border: 1px solid #fecdd3; transition: all 0.4s ease; }
         .timer-container { display: flex; flex-direction: column; align-items: center; gap: 25px; }
@@ -348,6 +348,7 @@
         <div class="card">
             <div class="card-header">
                 <h2>จัดการคะแนนแต่ละฐาน</h2>
+                <span id="sync-status-bases" class="sync-badge success">☁️ พร้อมซิงค์คะแนน</span>
             </div>
 
             <!-- แถบเลือกฐานสำหรับกรอกคะแนน -->
@@ -385,8 +386,8 @@
             <textarea id="names-input"></textarea>
             <div class="btn-group">
                 <div class="btn-row">
-                    <button class="btn-update" onclick="updateWheel()">🔄 สร้างวงล้อ</button>
-                    <button class="btn-sync" onclick="syncFromLeaderboard()">📥 ดึงชื่อจากตาราง</button>
+                    <button class="btn-update" onclick="updateWheel(true)">🔄 สร้างวงล้อ</button>
+                    <button class="btn-sync" onclick="syncFromLeaderboard(true)">📥 ดึงชื่อจากตาราง</button>
                 </div>
                 <button class="btn-spin" id="spin-btn" onclick="spinWheel()">🎉 หมุนเต็มจอ!</button>
             </div>
@@ -399,7 +400,7 @@
         </div>
     </div>
 
-    <!-- นาฬิกาจับเวลา (นำการกรอกคะแนนออก) -->
+    <!-- นาฬิกาจับเวลา -->
     <div id="timer-page" class="page">
         <div class="card timer-container">
             <div class="card-header" style="width: 100%; border-bottom-color: #fecdd3; margin-bottom:0;">
@@ -461,11 +462,95 @@
         </div>
     </div>
 
+    <!-- Custom Dialog Modal (แทน alert / confirm / prompt เพื่อป้องกันปัญหาการบล็อกในบางเบราว์เซอร์) -->
+    <div id="customDialogModal" class="modal" style="z-index: 200;">
+        <div class="modal-content" style="max-width: 420px; padding: 30px;">
+            <h3 id="dialog-title" style="color: #1e293b; font-size:22px; margin-top:0;">แจ้งเตือน</h3>
+            <p id="dialog-desc" style="color:#475569; font-size: 16px; margin-bottom: 20px; line-height: 1.5;"></p>
+            <input type="text" id="custom-prompt-input" style="display:none;" autocomplete="off">
+            <div class="modal-btns">
+                <button id="dialog-cancel" style="background:#94a3b8;">ยกเลิก</button>
+                <button id="dialog-confirm" style="background:#3b82f6;">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="bgm-audio" loop preload="auto" crossorigin="anonymous">
         <source src="https://raw.githubusercontent.com/mdn/webaudio-examples/master/audio-analyser/viper.mp3" type="audio/mpeg">
     </audio>
 
 <script>
+    /* =========================================
+       ระบบ Custom Dialog (แทน alert, confirm, prompt)
+    ========================================= */
+    function showAlert(msg, title = '⚠️ แจ้งเตือน') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('customDialogModal');
+            document.getElementById('dialog-title').innerHTML = title;
+            document.getElementById('dialog-desc').innerHTML = msg.replace(/\n/g, '<br>');
+            document.getElementById('custom-prompt-input').style.display = 'none';
+            document.getElementById('dialog-cancel').style.display = 'none';
+            const confirmBtn = document.getElementById('dialog-confirm');
+            confirmBtn.innerText = 'ตกลง';
+            modal.style.display = 'flex';
+
+            confirmBtn.onclick = () => {
+                modal.style.display = 'none';
+                confirmBtn.onclick = null;
+                resolve(true);
+            };
+        });
+    }
+
+    function showConfirm(msg, title = '❓ ยืนยันการทำรายการ') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('customDialogModal');
+            document.getElementById('dialog-title').innerHTML = title;
+            document.getElementById('dialog-desc').innerHTML = msg.replace(/\n/g, '<br>');
+            document.getElementById('custom-prompt-input').style.display = 'none';
+            const cancelBtn = document.getElementById('dialog-cancel');
+            const confirmBtn = document.getElementById('dialog-confirm');
+            cancelBtn.style.display = 'block';
+            confirmBtn.innerText = 'ยืนยัน';
+            modal.style.display = 'flex';
+
+            const cleanup = () => {
+                modal.style.display = 'none';
+                confirmBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+            confirmBtn.onclick = () => { cleanup(); resolve(true); };
+            cancelBtn.onclick = () => { cleanup(); resolve(false); };
+        });
+    }
+
+    function showPrompt(msg, defaultVal = '', title = '✏️ กรอกข้อมูล') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('customDialogModal');
+            document.getElementById('dialog-title').innerHTML = title;
+            document.getElementById('dialog-desc').innerHTML = msg.replace(/\n/g, '<br>');
+            const inputEl = document.getElementById('custom-prompt-input');
+            inputEl.style.display = 'block';
+            inputEl.value = defaultVal;
+            const cancelBtn = document.getElementById('dialog-cancel');
+            const confirmBtn = document.getElementById('dialog-confirm');
+            cancelBtn.style.display = 'block';
+            confirmBtn.innerText = 'ตกลง';
+            modal.style.display = 'flex';
+            setTimeout(() => { inputEl.focus(); inputEl.select(); }, 100);
+
+            const cleanup = () => {
+                modal.style.display = 'none';
+                confirmBtn.onclick = null;
+                cancelBtn.onclick = null;
+                inputEl.onkeypress = null;
+            };
+            confirmBtn.onclick = () => { cleanup(); resolve(inputEl.value); };
+            cancelBtn.onclick = () => { cleanup(); resolve(null); };
+            inputEl.onkeypress = (e) => { if (e.key === 'Enter') { cleanup(); resolve(inputEl.value); } };
+        });
+    }
+
     /* =========================================
        ฟังก์ชันควบคุม Loading Overlay
     ========================================= */
@@ -486,7 +571,7 @@
     }
 
     /* =========================================
-       ระบบฐานข้อมูลและรหัสผ่านแบบ Custom Modal
+       ระบบฐานข้อมูลและป้องกันการบันทึกทับ (Multi-Device Sync)
     ========================================= */
     const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtFDEleSZv6NdvisB9qU3kU4w7wSvrRdoUeGkrWTSPS2N-LZlqemtr2EQs0IZMzP9c/exec'; 
 
@@ -516,16 +601,21 @@
     let wheelNames = [];
     let currentViewedBaseIndex = 0;
     
-    // ระบบ Auto Refresh
+    // ตัวแปรจัดการคิวบันทึกป้องกันการทับข้อมูลระหว่างเครื่อง
+    let isSaving = false;
+    let pendingScoreUpdates = []; // เก็บคิวคะแนนที่รออัปเดตเฉพาะช่อง
     let autoRefreshTimer = null;
 
     function toggleAutoRefresh() {
         const isChecked = document.getElementById('auto-refresh-cb').checked;
         if (isChecked) {
             autoRefreshTimer = setInterval(() => {
-                if (currentEventId) loadData(true); 
-            }, 10000); 
-            setSyncStatus('success', 'เปิดโหมดอัปเดตอัตโนมัติแล้ว');
+                // ดึงข้อมูลใหม่เฉพาะตอนที่ไม่ได้กำลังบันทึกคิวค้างอยู่
+                if (currentEventId && !isSaving && pendingScoreUpdates.length === 0) {
+                    loadData(true); 
+                }
+            }, 8000); 
+            setSyncStatus('success', 'เปิดจอมอนิเตอร์อัตโนมัติ (ทุก 8 วิ)');
         } else {
             clearInterval(autoRefreshTimer);
             setSyncStatus('warning', 'ปิดอัปเดตอัตโนมัติ');
@@ -571,7 +661,7 @@
             if (inputPass === null) return false; 
             
             if (inputPass !== ev.password) {
-                alert('❌ รหัสผ่านไม่ถูกต้อง! ไม่อนุญาตให้เข้าถึงข้อมูลครับ');
+                await showAlert('❌ รหัสผ่านไม่ถูกต้อง! ไม่อนุญาตให้เข้าถึงข้อมูลครับ', 'รหัสผ่านผิด');
                 return false;
             }
         }
@@ -579,49 +669,62 @@
     }
 
     function setSyncStatus(type, msg) {
-        const el = document.getElementById('sync-status-leaderboard'); if(!el) return;
-        el.className = 'sync-badge'; 
-        if (type === 'success') { el.classList.add('success'); el.innerHTML = `☁️ ${msg}`; }
-        else if (type === 'warning') { el.classList.add('warning'); el.innerHTML = `⏳ ${msg}`; }
-        else if (type === 'error') { el.classList.add('error'); el.innerHTML = `💾 ${msg}`; }
+        const targets = ['sync-status-leaderboard', 'sync-status-bases'];
+        targets.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = 'sync-badge'; 
+            if (type === 'success') { el.classList.add('success'); el.innerHTML = `☁️ ${msg}`; }
+            else if (type === 'warning') { el.classList.add('warning'); el.innerHTML = `⏳ ${msg}`; }
+            else if (type === 'error') { el.classList.add('error'); el.innerHTML = `💾 ${msg}`; }
+        });
+    }
+
+    // ดึงข้อมูลจาก Cloud (เติม ?t= ป้องกัน Cache ของเบราว์เซอร์)
+    async function fetchCloudState() {
+        if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) return null;
+        try {
+            const response = await fetch(GOOGLE_APP_SCRIPT_URL + '?t=' + Date.now(), {
+                cache: 'no-store'
+            });
+            if (response.ok) {
+                const result = await response.json();
+                if (result.status === 'success' && result.data) {
+                    return result.data;
+                }
+            }
+        } catch (error) {
+            console.warn('Fetch Cloud Error:', error);
+        }
+        return null;
     }
 
     async function loadData(silent = false) {
         if (!silent) showLoadingOverlay(); 
-        setSyncStatus('warning', 'กำลังโหลดข้อมูล...');
+        setSyncStatus('warning', 'กำลังดึงข้อมูลล่าสุด...');
         
-        if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
-            loadFromLocal(silent);
-            if (!silent) hideLoadingOverlay(); 
-            return;
-        }
+        const cloudData = await fetchCloudState();
         
-        try {
-            const response = await fetch(GOOGLE_APP_SCRIPT_URL);
-            if (response.ok) {
-                const result = await response.json();
-                if (result.status === 'success' && result.data) {
-                    if (result.data.eventsList && result.data.eventData) {
-                        appState = result.data; 
-                    } else {
-                        appState.eventData['default_event'].teams = result.data.teams || appState.eventData['default_event'].teams;
-                        appState.eventData['default_event'].wheelNames = result.data.wheelNames || [];
-                        appState.eventData['default_event'].activeBases = result.data.activeBases || 4;
-                        appState.eventData['default_event'].lockedBases = result.data.lockedBases || [false,false,false,false,false,false];
-                    }
-                    localStorage.setItem('master_app_state', JSON.stringify(appState));
-                    setSyncStatus('success', 'ข้อมูลล่าสุดอัปเดตแล้ว');
-                }
+        if (cloudData) {
+            if (cloudData.eventsList && cloudData.eventData) {
+                appState = cloudData; 
+            } else {
+                appState.eventData['default_event'].teams = cloudData.teams || appState.eventData['default_event'].teams;
+                appState.eventData['default_event'].wheelNames = cloudData.wheelNames || [];
+                appState.eventData['default_event'].activeBases = cloudData.activeBases || 4;
+                appState.eventData['default_event'].lockedBases = cloudData.lockedBases || [false,false,false,false,false,false];
             }
-        } catch (error) {
-            console.warn(error);
+            localStorage.setItem('master_app_state', JSON.stringify(appState));
+            setSyncStatus('success', 'ข้อมูลล่าสุดอัปเดตแล้ว');
+        } else {
             loadFromLocal(silent);
         }
 
         if (!currentEventId) { 
             if(!silent) renderEventList(); 
-        } 
-        else { applyEventDataToMemory(silent); }
+        } else { 
+            applyEventDataToMemory(silent); 
+        }
         
         if (!silent) hideLoadingOverlay(); 
     }
@@ -637,17 +740,9 @@
         else { applyEventDataToMemory(silent); }
     }
 
-    async function saveData() {
-        if (currentEventId) {
-            appState.eventData[currentEventId] = {
-                teams: teams,
-                wheelNames: wheelNames,
-                activeBases: activeBases,
-                lockedBases: lockedBases
-            };
-        }
-        
-        localStorage.setItem('master_app_state', JSON.stringify(appState));
+    // ฟังก์ชันส่งข้อมูลขึ้น Cloud
+    async function pushStateToCloud(stateToSave) {
+        localStorage.setItem('master_app_state', JSON.stringify(stateToSave));
 
         if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
             setSyncStatus('error', 'บันทึกลงเครื่องแล้ว (ออฟไลน์)');
@@ -656,14 +751,88 @@
 
         setSyncStatus('warning', 'กำลังบันทึกออนไลน์...');
         try {
-            fetch(GOOGLE_APP_SCRIPT_URL, {
+            await fetch(GOOGLE_APP_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(appState)
-            }).then(() => setSyncStatus('success', 'บันทึกออนไลน์แยกข้อมูลสำเร็จ ☁️'))
-              .catch(err => setSyncStatus('error', 'บันทึกในเครื่อง (ออฟไลน์)'));
-        } catch (e) {}
+                body: JSON.stringify(stateToSave)
+            });
+            setSyncStatus('success', 'บันทึกออนไลน์สำเร็จ ☁️');
+        } catch (e) {
+            setSyncStatus('error', 'บันทึกในเครื่อง (ออฟไลน์)');
+        }
+    }
+
+    // บันทึกข้อมูลโครงสร้างทั่วไป (เพิ่ม/ลบทีม, เปลี่ยนจำนวนฐาน, ล็อกฐาน, รายชื่อวงล้อ)
+    // จะดึงคะแนนล่าสุดจาก Cloud ก่อนเสมอเพื่อไม่ให้คะแนนที่เครื่องอื่นกรอกไว้หายไป
+    async function saveGeneralData(syncOptions = { syncTeams: true, syncWheel: false, syncSettings: false }) {
+        if (isSaving) {
+            // รอสักครู่หากกำลังซิงค์คะแนนอยู่
+            setTimeout(() => saveGeneralData(syncOptions), 400);
+            return;
+        }
+        isSaving = true;
+        setSyncStatus('warning', 'กำลังซิงค์ข้อมูล...');
+
+        try {
+            const cloudData = await fetchCloudState();
+            if (cloudData && cloudData.eventsList && cloudData.eventData) {
+                // หากมีกิจกรรมปัจจุบันอยู่ใน Cloud ให้ผสานข้อมูลอย่างปลอดภัย
+                if (currentEventId && cloudData.eventData[currentEventId]) {
+                    const cloudEvent = cloudData.eventData[currentEventId];
+                    const cloudTeams = cloudEvent.teams || [];
+
+                    if (syncOptions.syncTeams) {
+                        // อัปเดตคะแนนล่าสุดจาก Cloud ใส่ในทีมที่มีอยู่เดิม เพื่อไม่ให้คะแนนหาย
+                        teams.forEach(localTeam => {
+                            const match = cloudTeams.find(ct => ct.id === localTeam.id);
+                            if (match && match.baseScores) {
+                                localTeam.baseScores = [...match.baseScores];
+                            }
+                        });
+                        cloudEvent.teams = teams;
+                    }
+                    if (syncOptions.syncWheel) {
+                        cloudEvent.wheelNames = wheelNames;
+                    }
+                    if (syncOptions.syncSettings) {
+                        cloudEvent.activeBases = activeBases;
+                        cloudEvent.lockedBases = lockedBases;
+                    }
+                }
+                // รักษารายการกิจกรรมอื่นๆ จาก Cloud ไว้ แต่เอาชื่อ/รหัสผ่านล่าสุดจากเครื่องนี้ทับ
+                cloudData.eventsList = appState.eventsList;
+                // เพิ่มกิจกรรมใหม่ที่เพิ่งสร้างเข้า Cloud
+                appState.eventsList.forEach(ev => {
+                    if (!cloudData.eventData[ev.id] && appState.eventData[ev.id]) {
+                        cloudData.eventData[ev.id] = appState.eventData[ev.id];
+                    }
+                });
+                // ลบกิจกรรมที่ถูกลบออกจาก Cloud
+                Object.keys(cloudData.eventData).forEach(k => {
+                    if (!appState.eventsList.find(ev => ev.id === k)) {
+                        delete cloudData.eventData[k];
+                    }
+                });
+
+                appState = cloudData;
+            } else if (currentEventId) {
+                appState.eventData[currentEventId] = {
+                    teams: teams,
+                    wheelNames: wheelNames,
+                    activeBases: activeBases,
+                    lockedBases: lockedBases
+                };
+            }
+
+            await pushStateToCloud(appState);
+            if (currentEventId) applyEventDataToMemory(true);
+        } finally {
+            isSaving = false;
+            if (pendingScoreUpdates.length > 0) {
+                processScoreQueue();
+            }
+        }
     }
 
     function applyEventDataToMemory(silent = false) {
@@ -674,6 +843,14 @@
             activeBases = data.activeBases || 4;
             lockedBases = data.lockedBases || [false,false,false,false,false,false];
             
+            // หากมีคิวคะแนนที่เครื่องนี้เพิ่งแก้แล้วยังส่งไม่เสร็จ ให้คงค่าที่เครื่องนี้กรอกไว้บนหน้าจอ
+            pendingScoreUpdates.forEach(upd => {
+                if (upd.eventId === currentEventId) {
+                    const t = teams.find(x => x.id === upd.teamId);
+                    if (t && t.baseScores) t.baseScores[upd.baseIndex] = upd.value;
+                }
+            });
+
             if(!silent) currentViewedBaseIndex = 0; 
 
             const baseSelect = document.getElementById('base-count-select');
@@ -691,6 +868,7 @@
         
         renderLeaderboard();
         
+        // ตรวจสอบว่าผู้ใช้กำลังพิมพ์คะแนนในช่อง input อยู่หรือไม่ ถ้าพิมพ์อยู่จะไม่รีเฟรชทับช่องนั้น
         const activeEl = document.activeElement;
         const isInputFocused = activeEl && activeEl.tagName === 'INPUT' && activeEl.classList.contains('base-input');
         
@@ -698,8 +876,13 @@
             renderBasePage();
         }
         
+        // จุดสำคัญ: ตอนโหลดข้อมูลครั้งแรก (silent = false) ห้ามเรียก saveData() เด็ดขาด!
         if (!silent) {
-            if (wheelNames.length === 0) syncFromLeaderboard(); else updateWheel();
+            if (wheelNames.length === 0) {
+                syncFromLeaderboard(false); // false = วาดวงล้ออย่างเดียว ไม่เขียนทับ Cloud
+            } else {
+                updateWheel(false); // false = วาดวงล้ออย่างเดียว ไม่เขียนทับ Cloud
+            }
             populateTimerTeams();
         }
     }
@@ -753,11 +936,18 @@
                 autoRefCb.checked = false;
                 toggleAutoRefresh();
             }
+            loadData(false); // โหลดรายการกิจกรรมล่าสุดเมื่อกลับหน้าแรก
         } else {
-            if(tabId === 'wheel') updateWheel(); 
+            if(tabId === 'wheel') updateWheel(false); 
             else if (tabId === 'timer') populateTimerTeams();
-            else if (tabId === 'leaderboard') renderLeaderboard();
-            else if (tabId === 'bases') renderBasePage();
+            else if (tabId === 'leaderboard') {
+                renderLeaderboard();
+                if (!isSaving && pendingScoreUpdates.length === 0) loadData(true); // อัปเดตคะแนนล่าสุดแบบเงียบๆ
+            }
+            else if (tabId === 'bases') {
+                renderBasePage();
+                if (!isSaving && pendingScoreUpdates.length === 0) loadData(true); // อัปเดตคะแนนล่าสุดแบบเงียบๆ
+            }
         }
     }
 
@@ -781,7 +971,7 @@
     }
 
     async function createNewEvent() {
-        const name = prompt('ตั้งชื่อกิจกรรม หรือ การแข่งขันใหม่:');
+        const name = await showPrompt('ตั้งชื่อกิจกรรม หรือ การแข่งขันใหม่:', '', '➕ สร้างกิจกรรมใหม่');
         if (name && name.trim() !== '') {
             const password = await promptPassword(
                 '🔒 ตั้งรหัสผ่านให้กิจกรรม', 
@@ -790,21 +980,15 @@
             
             if (password === null) return; 
             
-            showLoadingOverlay();
-            
             const newId = 'event_' + Date.now();
-            appState.eventsList.push({ id: newId, name: name.trim(), password: password || '' });
-            
             let newTeams = [];
             let newWheel = [];
 
-            if (appState.eventsList.length > 1) {
-                hideLoadingOverlay();
-                const copyTeams = confirm('💡 ต้องการ "คัดลอกรายชื่อทีม" จากกิจกรรมเดิมมาใช้ด้วยหรือไม่?\n(คะแนนจะถูกเคลียร์เป็น 0 ทั้งหมดแบบแยกอิสระ)');
-                showLoadingOverlay();
+            if (appState.eventsList.length > 0) {
+                const copyTeams = await showConfirm('💡 ต้องการ "คัดลอกรายชื่อทีม" จากกิจกรรมล่าสุดมาใช้ด้วยหรือไม่?\n(คะแนนจะถูกเคลียร์เป็น 0 ทั้งหมดแบบแยกอิสระ)', 'คัดลอกรายชื่อทีม');
                 
                 if (copyTeams) {
-                    const prevEventId = appState.eventsList[appState.eventsList.length - 2].id;
+                    const prevEventId = appState.eventsList[appState.eventsList.length - 1].id;
                     const prevData = appState.eventData[prevEventId];
                     if (prevData && prevData.teams) {
                         newTeams = prevData.teams.map(t => ({
@@ -819,11 +1003,13 @@
                 for(let i=1; i<=10; i++) newTeams.push({ id: i, name: `ทีม A${i}`, baseScores: [0,0,0,0,0,0], totalScore: 0 });
             }
 
+            showLoadingOverlay();
+            appState.eventsList.push({ id: newId, name: name.trim(), password: password || '' });
             appState.eventData[newId] = {
                 teams: newTeams, wheelNames: newWheel, activeBases: 4, lockedBases: [false,false,false,false,false,false]
             };
             
-            await saveData();
+            await saveGeneralData({ syncTeams: false, syncWheel: false, syncSettings: false });
             renderEventList();
             hideLoadingOverlay();
         }
@@ -835,7 +1021,7 @@
             const isAuth = await authenticateEvent(ev);
             if (!isAuth) return;
 
-            const newName = prompt('แก้ไขชื่อกิจกรรม:', ev.name);
+            const newName = await showPrompt('แก้ไขชื่อกิจกรรม:', ev.name, '✏️ แก้ไขกิจกรรม');
             if (newName && newName.trim() !== '') {
                 const newPass = await promptPassword(
                     '🔑 เปลี่ยนรหัสผ่าน', 
@@ -847,7 +1033,7 @@
                 ev.password = newPass || '';
                 
                 showLoadingOverlay();
-                await saveData();
+                await saveGeneralData({ syncTeams: false, syncWheel: false, syncSettings: false });
                 renderEventList();
                 
                 if(currentEventId === id) {
@@ -860,7 +1046,7 @@
 
     async function deleteEvent(id) {
         if (appState.eventsList.length <= 1) {
-            alert('ไม่สามารถลบได้ ต้องมีอย่างน้อย 1 กิจกรรมในระบบครับ');
+            await showAlert('ไม่สามารถลบได้ ต้องมีอย่างน้อย 1 กิจกรรมในระบบครับ');
             return;
         }
         const ev = appState.eventsList.find(e => e.id === id);
@@ -868,11 +1054,12 @@
             const isAuth = await authenticateEvent(ev);
             if (!isAuth) return;
 
-            if (confirm(`ยืนยันที่จะลบกิจกรรม "${ev.name}" พร้อมข้อมูลทั้งหมดหรือไม่?\n(การกระทำนี้ไม่สามารถย้อนกลับได้)`)) {
+            const isConfirmed = await showConfirm(`ยืนยันที่จะลบกิจกรรม "${ev.name}" พร้อมข้อมูลทั้งหมดหรือไม่?\n(การกระทำนี้ไม่สามารถย้อนกลับได้)`, '🗑️ ลบกิจกรรม');
+            if (isConfirmed) {
                 showLoadingOverlay();
                 appState.eventsList = appState.eventsList.filter(e => e.id !== id);
                 delete appState.eventData[id];
-                await saveData();
+                await saveGeneralData({ syncTeams: false, syncWheel: false, syncSettings: false });
                 renderEventList();
                 if (currentEventId === id) switchTab('events');
                 hideLoadingOverlay();
@@ -888,9 +1075,15 @@
 
             showLoadingOverlay();
 
+            // ดึงข้อมูลสดใหม่จาก Cloud ก่อนเข้ากิจกรรมเสมอ เพื่อป้องกันข้อมูลเก่าค้างในเครื่อง
+            const cloudData = await fetchCloudState();
+            if (cloudData && cloudData.eventsList && cloudData.eventData) {
+                appState = cloudData;
+                localStorage.setItem('master_app_state', JSON.stringify(appState));
+            }
+
             currentEventId = id;
             
-            // แสดง SMR Badge ในหน้า Event
             document.getElementById('smr-badge-header').style.display = 'inline-block';
             document.querySelector('#main-project-title span:not(.smr-badge)').innerText = ev.name;
             document.getElementById('main-project-subtitle').innerText = "กำลังจัดการข้อมูลของกิจกรรมนี้อยู่";
@@ -900,7 +1093,7 @@
             document.getElementById('tab-wheel').style.display = 'block';
             document.getElementById('tab-timer').style.display = 'block';
 
-            applyEventDataToMemory();
+            applyEventDataToMemory(false);
             switchTab('leaderboard');
             
             setTimeout(() => { hideLoadingOverlay(); }, 300); 
@@ -908,7 +1101,7 @@
     }
 
     /* =========================================
-       ระบบทำงานในตารางคะแนน (Anti-Overwrite Sync)
+       ระบบทำงานในตารางคะแนน & คิวซิงค์คะแนน (Anti-Overwrite)
     ========================================= */
     function updateBaseCount() {
         activeBases = parseInt(document.getElementById('base-count-select').value) || 4;
@@ -917,7 +1110,7 @@
         renderLeaderboard();
         renderBasePage();
         populateTimerTeams();
-        saveData();
+        saveGeneralData({ syncTeams: false, syncWheel: false, syncSettings: true });
     }
 
     function renderLeaderboard() {
@@ -975,7 +1168,7 @@
     function toggleCurrentBaseLock() {
         lockedBases[currentViewedBaseIndex] = !lockedBases[currentViewedBaseIndex];
         renderBasePage();
-        saveData();
+        saveGeneralData({ syncTeams: false, syncWheel: false, syncSettings: true });
     }
 
     function renderBasePage() {
@@ -1030,48 +1223,99 @@
         });
     }
 
-    async function updateBaseScore(teamId, baseIndex, value) {
+    // 1. ฟังก์ชันรับค่าคะแนนเมื่อกรรมการพิมพ์เสร็จ -> เก็บลงคิวแล้วประมวลผล
+    function updateBaseScore(teamId, baseIndex, value) {
         if(lockedBases[baseIndex]) return; 
-        
         const newVal = parseInt(value) || 0;
 
+        // อัปเดตหน้าจอเครื่องตัวเองทันทีเพื่อให้ตอบสนองไว
         const team = teams.find(t => t.id === teamId);
         if (team) {
             team.baseScores[baseIndex] = newVal;
             renderLeaderboard();
         }
 
-        if (GOOGLE_APP_SCRIPT_URL && !GOOGLE_APP_SCRIPT_URL.includes('ใส่_URL')) {
-            setSyncStatus('warning', 'ซิงค์ข้อมูลล่าสุด...');
-            try {
-                const response = await fetch(GOOGLE_APP_SCRIPT_URL);
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.status === 'success' && result.data) {
-                        appState = result.data; 
+        // เก็บลงคิว (ถ้าแก้ทีมเดิมฐานเดิมซ้ำ ให้ทับค่าในคิวเดิม)
+        const existingIdx = pendingScoreUpdates.findIndex(
+            u => u.eventId === currentEventId && u.teamId === teamId && u.baseIndex === baseIndex
+        );
+        if (existingIdx > -1) {
+            pendingScoreUpdates[existingIdx].value = newVal;
+        } else {
+            pendingScoreUpdates.push({
+                eventId: currentEventId,
+                teamId: teamId,
+                baseIndex: baseIndex,
+                value: newVal
+            });
+        }
+
+        processScoreQueue();
+    }
+
+    // 2. ประมวลผลคิวคะแนน: ดึงล่าสุดจาก Cloud -> หยอดเฉพาะคะแนนฐานที่แก้ -> ส่งขึ้น Cloud
+    async function processScoreQueue() {
+        if (isSaving || pendingScoreUpdates.length === 0) return;
+        isSaving = true;
+        setSyncStatus('warning', 'กำลังซิงค์คะแนนกับฐานอื่น...');
+
+        // ดึงคิวออกมาประมวลผลรอบนี้
+        const updatesBatch = [...pendingScoreUpdates];
+        pendingScoreUpdates = [];
+
+        try {
+            // ขั้นตอน A: ดึงข้อมูลล่าสุดจาก Cloud เพื่อรักษาคะแนนของฐานอื่นๆ ไว้
+            const cloudData = await fetchCloudState();
+            if (cloudData && cloudData.eventsList && cloudData.eventData) {
+                appState = cloudData;
+            }
+
+            // ขั้นตอน B: หยอดเฉพาะคะแนนในคิวลงในตำแหน่งทีมและฐานที่ถูกต้อง
+            updatesBatch.forEach(upd => {
+                if (appState.eventData[upd.eventId] && appState.eventData[upd.eventId].teams) {
+                    const targetTeam = appState.eventData[upd.eventId].teams.find(t => t.id === upd.teamId);
+                    if (targetTeam) {
+                        if (!targetTeam.baseScores) targetTeam.baseScores = [0,0,0,0,0,0];
+                        while(targetTeam.baseScores.length < 6) targetTeam.baseScores.push(0);
+                        targetTeam.baseScores[upd.baseIndex] = upd.value;
                     }
                 }
-            } catch(e) {}
-        }
+            });
 
-        if(appState.eventData[currentEventId]) {
-            const t = appState.eventData[currentEventId].teams.find(x => x.id === teamId);
-            if(t) t.baseScores[baseIndex] = newVal;
-        }
+            // ขั้นตอน C: ส่งข้อมูลที่รวมเสร็จแล้วขึ้น Cloud
+            await pushStateToCloud(appState);
 
-        await saveData();
-        applyEventDataToMemory(true); 
+            // ขั้นตอน D: อัปเดตหน้าจอด้วยคะแนนล่าสุดของทุกฐาน
+            if (currentEventId) {
+                applyEventDataToMemory(true);
+            }
+        } catch (err) {
+            console.error('Queue Sync Error:', err);
+            setSyncStatus('error', 'ซิงค์ขัดข้อง กำลังลองใหม่...');
+            // คืนคิวกลับไปรอส่งรอบถัดไป
+            pendingScoreUpdates = [...updatesBatch, ...pendingScoreUpdates];
+        } finally {
+            isSaving = false;
+            // ถ้ามีคิวใหม่เข้ามาแทรกระหว่างกำลังบันทึก ให้ทำต่อทันที
+            if (pendingScoreUpdates.length > 0) {
+                setTimeout(processScoreQueue, 300);
+            }
+        }
     }
 
     async function addTeam() {
         const nameInput = document.getElementById('new-team-name'); 
         const name = nameInput.value.trim(); 
-        if (name === '') { alert('กรุณาใส่ชื่อทีมหรือบุคคลครับ'); nameInput.focus(); return; }
+        if (name === '') { 
+            await showAlert('กรุณาใส่ชื่อทีมหรือบุคคลครับ'); 
+            nameInput.focus(); 
+            return; 
+        }
         
         teams.push({ id: nextId++, name: name, baseScores: [0,0,0,0,0,0], totalScore: 0 });
         nameInput.value = ''; nameInput.focus(); 
         renderLeaderboard(); renderBasePage(); populateTimerTeams(); 
-        await saveData();
+        await saveGeneralData({ syncTeams: true, syncWheel: false, syncSettings: false });
     }
 
     function handleEnter(e) { if (e.key === 'Enter') addTeam(); }
@@ -1079,27 +1323,31 @@
     async function editTeam(id) { 
         const team = teams.find(t => t.id === id); 
         if (team) { 
-            const newName = prompt('แก้ไขชื่อทีม:', team.name); 
+            const newName = await showPrompt('แก้ไขชื่อทีม:', team.name, '✏️ แก้ไขชื่อ'); 
             if (newName !== null && newName.trim() !== '') { 
                 team.name = newName.trim(); 
                 renderLeaderboard(); renderBasePage(); populateTimerTeams(); 
-                await saveData(); 
+                await saveGeneralData({ syncTeams: true, syncWheel: false, syncSettings: false }); 
             } 
         } 
     }
     
     async function deleteTeam(id) { 
-        if(confirm('ยืนยันการลบรายชื่อนี้?')) { 
+        const isConfirmed = await showConfirm('ยืนยันการลบรายชื่อนี้ออกจากตารางคะแนน?', '🗑️ ลบรายชื่อ');
+        if(isConfirmed) { 
             teams = teams.filter(t => t.id !== id); 
             renderLeaderboard(); renderBasePage(); populateTimerTeams(); 
-            await saveData(); 
+            await saveGeneralData({ syncTeams: true, syncWheel: false, syncSettings: false }); 
         } 
     }
     
-    function syncFromLeaderboard() {
-        if(teams.length === 0) { alert('ไม่มีรายชื่อในตารางคะแนน'); return; }
+    async function syncFromLeaderboard(shouldSave = true) {
+        if(teams.length === 0) { 
+            if(shouldSave) await showAlert('ไม่มีรายชื่อในตารางคะแนน'); 
+            return; 
+        }
         document.getElementById('names-input').value = [...teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => t.name).join('\n');
-        updateWheel(); 
+        updateWheel(shouldSave); 
     }
 
     function playTickSound() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
@@ -1112,10 +1360,19 @@
         } else { osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); gain.gain.setValueAtTime(0.25, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.2); }
     }
 
-    function updateWheel() {
-        if (isSpinning) return; wheelNames = document.getElementById('names-input').value.split('\n').map(n => n.trim()).filter(n => n !== '');
-        if (wheelNames.length > 0) { drawWheel(); winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!'; } else ctx.clearRect(0, 0, canvas.width, canvas.height);
-        saveData();
+    // เพิ่ม shouldSave เพื่อควบคุมไม่ให้บันทึกอัตโนมัติตอนโหลดหน้าเว็บ
+    function updateWheel(shouldSave = true) {
+        if (isSpinning) return; 
+        wheelNames = document.getElementById('names-input').value.split('\n').map(n => n.trim()).filter(n => n !== '');
+        if (wheelNames.length > 0) { 
+            drawWheel(); 
+            winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!'; 
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        if (shouldSave) {
+            saveGeneralData({ syncTeams: false, syncWheel: true, syncSettings: false });
+        }
     }
 
     function drawWheel() {
@@ -1147,7 +1404,11 @@
         modal.style.display = 'none'; wheelSection.classList.remove('fullscreen');
         if (shouldRemove && lastWinnerIndex !== -1) {
             wheelNames.splice(lastWinnerIndex, 1); document.getElementById('names-input').value = wheelNames.join('\n');
-            setTimeout(() => { drawWheel(); winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!'; saveData(); }, 500);
+            setTimeout(() => { 
+                drawWheel(); 
+                winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!'; 
+                saveGeneralData({ syncTeams: false, syncWheel: true, syncSettings: false }); 
+            }, 500);
         } else winnerDisplay.textContent = 'พร้อมลุ้นโชคแล้ว!';
         isSpinning = false; spinBtn.disabled = false; lastWinnerIndex = -1;
     }
@@ -1194,11 +1455,11 @@
         if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(err => console.log(err));
     }
 
-    function startTimer() {
+    async function startTimer() {
         if (isTimerRunning || isPreCounting || remainingSeconds <= 0) return;
         const t1 = document.getElementById('team1-select').value; const t2 = document.getElementById('team2-select').value;
-        if (!t1 || !t2) { alert('กรุณาเลือกทีมที่แข่งขันทั้ง 2 ทีมก่อนเริ่มจับเวลาครับ'); return; }
-        if (t1 === t2) { alert('ไม่สามารถเลือกทีมเดียวกันแข่งกันเองได้ครับ'); return; }
+        if (!t1 || !t2) { await showAlert('กรุณาเลือกทีมที่แข่งขันทั้ง 2 ทีมก่อนเริ่มจับเวลาครับ'); return; }
+        if (t1 === t2) { await showAlert('ไม่สามารถเลือกทีมเดียวกันแข่งกันเองได้ครับ'); return; }
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
         const timerPage = document.getElementById('timer-page'); timerPage.classList.add('fullscreen');
@@ -1232,7 +1493,6 @@
         timerInterval = setInterval(() => {
             remainingSeconds--; window.updateTimerDisplay(remainingSeconds);
             if (remainingSeconds <= 10 && remainingSeconds > 0) playTickSound(); 
-            if (remainingSeconds === 3 && bgmToggle && bgmToggle.checked && typeof fadeOutAudio === 'function') fadeOutAudio(3000); 
             if (remainingSeconds <= 0) {
                 clearInterval(timerInterval); isTimerRunning = false;
                 const btnStart = document.getElementById('btn-timer-start'); const btnPause = document.getElementById('btn-timer-pause');
